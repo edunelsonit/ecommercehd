@@ -1,12 +1,26 @@
 import "./css/HomePage.css";
 import { Header } from "../components/Header";
-import { products } from "../assets/data/products";
+import axios from "axios";
+import { useEffect, useState} from "react";
+import {formatMoney} from '../utils/money'
 
-export function HomePage() {
+export function HomePage({cart}) {
+  const [products, setProducts] = useState([]);
+
+  useEffect(()=>{
+      axios.get('/api/products')
+
+      .then((response) =>{
+        setProducts(response.data);
+
+      });
+    },[]);
+  
+
   return (
     <>
       <title>Nelsonict Shop</title>
-      <Header />
+      <Header cart={cart}/>
 
       <div className="home-page">
         <div className="products-grid">
@@ -29,7 +43,7 @@ export function HomePage() {
                     <div className="product-rating-count link-primary">{product.rating.count}</div>
                   </div>
 
-                  <div className="product-price">${(product.priceCents / 100).toFixed(2)}</div>
+                  <div className="product-price"> {formatMoney(product.priceCents)}</div>
 
                   <div className="product-quantity-container">
                     <select>
