@@ -1,8 +1,17 @@
 import { Link } from 'react-router'
 import './css/header.css'
+//import { useState } from 'react';
 
 export function Header({cart}){
     let totalQuantity = 0;
+    //const [loginStatus, setLoginStatus] = useState(false);
+
+    function loginUser() {
+        alert('You have Logged In Successfully');
+    }
+                        
+                        
+
 
     cart.forEach(cartItem => {
         totalQuantity += cartItem.quantity
@@ -14,9 +23,9 @@ export function Header({cart}){
                 <div className="left-section">
                     <Link to="/" className="header-link">
                     <img className="logo"
-                        src="images/logo-white.png" />
+                        src="images/elvekas-white.png" />
                     <img className="mobile-logo"
-                        src="images/mobile-logo-white.png" />
+                        src="images/elvekasmobile.png" />
                     </Link>
                 </div>
 
@@ -37,6 +46,7 @@ export function Header({cart}){
                     <div className="cart-quantity">{totalQuantity}</div>
                     <div className="cart-text">Cart</div>
                     </Link>
+                    <button className='btn-login' onClick={loginUser}>Login</button>
                 </div>
             </div>
         </>

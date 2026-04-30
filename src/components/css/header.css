@@ -147,3 +147,8 @@
   width: 26px;
   text-align: center;
 }
+.btn-login{
+  color: white;
+  background-color: blue;
+  border-radius: 5px;
+}

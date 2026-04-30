@@ -7,10 +7,10 @@ export default defineConfig({
   server:{
     proxy:{
       '/api':{
-        target:'http://192.168.0.154:3000'
+        target:'http://localhost:3000'
       },
       '/images':{
-        target:'http://192.168.0.154:3000'
+        target:'http://localhost:3000'
       }
     }
   }
