@@ -4,5 +4,29 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"dbcode.connections": [
+			{
+				"connectionId": "zp7EcEnHZ5sf980M8_TBt",
+				"name": "localpsql",
+				"driver": "postgres",
+				"connectionType": "host",
+				"host": "localhost",
+				"port": 5432,
+				"ssl": false,
+				"authMethod": "password",
+				"username": "postgres",
+				"password": "",
+				"savePassword": "secretStorage",
+				"readOnly": false,
+				"role": "development",
+				"postConnectionSqlType": "inline",
+				"connectionTimeout": 30,
+				"pinnedConnectionTimeout": "0",
+				"introspection": {
+					"progressive": false
+				}
+			}
+		]
+	}
 }
