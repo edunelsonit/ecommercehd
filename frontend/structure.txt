@@ -1,4 +1,4 @@
-elvekas-dashboard-web/
+
 ├── src/
 │   ├── api/                   # Centralized Axios instances[cite: 1]
 │   ├── components/            # Reusable UI components[cite: 1]

@@ -1,5 +1,22 @@
 let prisma;
 
+function getDatabaseUrl() {
+    const databaseUrl = process.env.DATABASE_URL;
+
+    if (!databaseUrl) {
+        throw new Error('DATABASE_URL is not configured');
+    }
+
+    const url = new URL(databaseUrl);
+
+    if (url.username === 'postgress') {
+        url.username = 'postgres';
+        console.warn('DATABASE_URL username was "postgress"; using "postgres" instead.');
+    }
+
+    return url.toString();
+}
+
 function createPrismaClient() {
     const { PrismaClient } = require('@prisma/client');
 
@@ -7,11 +24,7 @@ function createPrismaClient() {
         const { PrismaPg } = require('@prisma/adapter-pg');
         const { Pool } = require('pg');
 
-        if (!process.env.DATABASE_URL) {
-            throw new Error('DATABASE_URL is not configured');
-        }
-
-        const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+        const pool = new Pool({ connectionString: getDatabaseUrl() });
         return new PrismaClient({ adapter: new PrismaPg(pool) });
     } catch (error) {
         if (error.code === 'MODULE_NOT_FOUND' && error.message.includes('@prisma/adapter-pg')) {

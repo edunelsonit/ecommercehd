@@ -1,6 +1,28 @@
 const prisma = require('../../config/db');
 const { generateOTP } = require('../../utils/otp-generator');
 
+exports.getOrders = async (req, res, next) => {
+    try {
+        const orders = await prisma.order.findMany({
+            where: { userId: BigInt(req.user.id) },
+            orderBy: { createdAt: 'desc' },
+            include: {
+                items: {
+                    include: {
+                        product: true,
+                        variant: true
+                    }
+                },
+                delivery: true
+            }
+        });
+
+        res.json(orders);
+    } catch (error) {
+        next(error);
+    }
+};
+
 exports.createOrder = async (req, res, next) => {
     try {
         const { items, totalAmount, landmarkAddress } = req.body;
