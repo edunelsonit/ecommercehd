@@ -63,6 +63,15 @@ export function AdminPage({ auth }: AdminPageProps) {
         body: {
           name: String(form.get('name') || ''),
           description: String(form.get('description') || ''),
+          image: String(form.get('image') || ''),
+          rating: {
+            stars: Number(form.get('ratingStars') || 0),
+            count: Number(form.get('ratingCount') || 0),
+          },
+          keywords: String(form.get('keywords') || '')
+            .split(',')
+            .map((keyword) => keyword.trim())
+            .filter(Boolean),
           basePrice: Number(form.get('basePrice')),
           unitType: String(form.get('unitType') || 'piece'),
           stockQuantity: Number(form.get('stockQuantity') || 10),
@@ -97,6 +106,22 @@ export function AdminPage({ auth }: AdminPageProps) {
           <label>
             Unit
             <input name="unitType" defaultValue="piece" required />
+          </label>
+          <label className="span-2">
+            Image URL
+            <input name="image" placeholder="https://example.com/product.jpg" />
+          </label>
+          <label>
+            Rating stars
+            <input name="ratingStars" type="number" min="0" max="5" defaultValue="4" />
+          </label>
+          <label>
+            Rating count
+            <input name="ratingCount" type="number" min="0" defaultValue="127" />
+          </label>
+          <label className="span-2">
+            Keywords
+            <input name="keywords" placeholder="sports, basketballs" />
           </label>
           <label>
             Stock quantity

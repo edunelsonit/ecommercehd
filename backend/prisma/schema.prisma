@@ -145,6 +145,10 @@ model Product {
   vendorId       BigInt           @map("vendor_id")
   name           String           @db.VarChar(255)
   description    String?          @db.Text
+  image          String?          @db.Text
+  ratingStars    Int              @default(0) @map("rating_stars")
+  ratingCount    Int              @default(0) @map("rating_count")
+  keywords       String[]         @default([])
   basePrice      Decimal          @map("base_price") @db.Decimal(15, 2)
   unitType       String           @default("piece") @map("unit_type") @db.VarChar(20)
   isAvailable    Boolean          @default(true) @map("is_available")

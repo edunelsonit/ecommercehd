@@ -279,11 +279,26 @@ button:disabled {
 .product-card {
   display: grid;
   gap: 12px;
-  min-height: 190px;
+  min-height: 320px;
   padding: 16px;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   background: #fbfdff;
+}
+
+.product-image-shell {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #eef2f7;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 .product-card p {
@@ -291,6 +306,33 @@ button:disabled {
   margin: 6px 0 0;
   color: #6b7280;
   font-size: 14px;
+}
+
+.rating-row,
+.keyword-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rating-row span {
+  color: #f59e0b;
+  font-size: 14px;
+  letter-spacing: 0;
+}
+
+.keyword-row span {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.home-products {
+  padding: 24px;
 }
 
 .variant-list {

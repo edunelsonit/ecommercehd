@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authController = require('./auth.controller');
 const { registerSchema } = require('../../utils/validation');
+const verifyToken = require('../../middlewares/auth.middleware');
 
 // Validation Middleware
 const validateRegister = (req, res, next) => {
@@ -12,5 +13,6 @@ const validateRegister = (req, res, next) => {
 
 router.post('/register', validateRegister, authController.register);
 router.post('/login', authController.login);
+router.post('/vendor-profile', verifyToken, authController.createVendorProfile);
 
 module.exports = router;

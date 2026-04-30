@@ -11,6 +11,12 @@ export type AuthUser = {
     balance: string
     currency: string
   } | null
+  vendorProfile?: {
+    id: string
+    businessName: string
+    vendorType: string
+    isVerified: boolean
+  } | null
 }
 
 export type AuthState = {

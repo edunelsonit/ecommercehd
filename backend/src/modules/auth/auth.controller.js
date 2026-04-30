@@ -49,6 +49,50 @@ exports.register = async (req, res, next) => {
     }
 };
 
+exports.createVendorProfile = async (req, res, next) => {
+    try {
+        const { businessName, vendorType } = req.body;
+
+        if (!businessName || !vendorType) {
+            return res.status(400).json({ message: 'businessName and vendorType are required' });
+        }
+
+        const updatedUser = await prisma.user.update({
+            where: { id: BigInt(req.user.id) },
+            data: {
+                role: req.user.role === 'customer' ? 'vendor' : req.user.role,
+                vendorProfile: {
+                    upsert: {
+                        update: {
+                            businessName,
+                            vendorType
+                        },
+                        create: {
+                            businessName,
+                            vendorType
+                        }
+                    }
+                }
+            },
+            include: {
+                wallet: true,
+                vendorProfile: true
+            }
+        });
+
+        const token = jwt.sign(
+            { id: updatedUser.id.toString(), role: updatedUser.role },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+        );
+
+        const { password_hash, ...safeUser } = updatedUser;
+        res.status(201).json({ token, user: safeUser });
+    } catch (error) {
+        next(error);
+    }
+};
+
 exports.login = async (req, res, next) => {
     try {
         const { phone, password } = req.body;

@@ -17,6 +17,12 @@ export type Product = {
   id: string
   name: string
   description?: string | null
+  image?: string | null
+  rating?: {
+    stars: number
+    count: number
+  }
+  keywords?: string[]
   basePrice: string
   unitType: string
   variants: ProductVariant[]
@@ -134,9 +140,25 @@ export function MarketPage({ auth }: MarketPageProps) {
         <div className="product-grid">
           {products.map((product) => (
             <article className="product-card" key={product.id}>
+              <div className="product-image-shell">
+                <img
+                  src={product.image || '/favicon.svg'}
+                  alt={product.name}
+                  className="product-image"
+                />
+              </div>
               <div>
                 <h3>{product.name}</h3>
                 <p>{product.description || product.vendor?.businessName || 'Available now'}</p>
+              </div>
+              <div className="rating-row">
+                <span>{'★'.repeat(Math.round(product.rating?.stars || 0)).padEnd(5, '☆')}</span>
+                <small>{product.rating?.count || 0}</small>
+              </div>
+              <div className="keyword-row">
+                {(product.keywords || []).slice(0, 3).map((keyword) => (
+                  <span key={keyword}>{keyword}</span>
+                ))}
               </div>
               <strong>{formatMoney(product.basePrice)}</strong>
               <small>{product.unitType}</small>

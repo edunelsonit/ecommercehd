@@ -1,6 +1,45 @@
 const prisma = require('../../config/db');
 
 const TEST_VENDOR_PHONE = '09000000000';
+const DEFAULT_PRODUCT_IMAGE = 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80';
+
+function normalizeKeywords(keywords) {
+    if (Array.isArray(keywords)) {
+        return keywords.map((keyword) => String(keyword).trim()).filter(Boolean);
+    }
+
+    if (typeof keywords === 'string') {
+        return keywords.split(',').map((keyword) => keyword.trim()).filter(Boolean);
+    }
+
+    return [];
+}
+
+function normalizeRating(rating = {}, ratingStars, ratingCount) {
+    const stars = Number(rating.stars ?? ratingStars ?? 0);
+    const count = Number(rating.count ?? ratingCount ?? 0);
+
+    return {
+        ratingStars: Number.isFinite(stars) ? Math.max(0, Math.min(5, stars)) : 0,
+        ratingCount: Number.isFinite(count) ? Math.max(0, count) : 0
+    };
+}
+
+function serializeProduct(product) {
+    const { ratingStars, ratingCount, ...rest } = product;
+
+    return {
+        ...rest,
+        rating: {
+            stars: ratingStars,
+            count: ratingCount
+        },
+        vendor: product.vendor ? {
+            businessName: product.vendor.businessName,
+            city: product.vendor.user?.city || product.vendor.city || null
+        } : null
+    };
+}
 
 function requireAdmin(req, res) {
     if (!['admin', 'superadmin'].includes(req.user?.role)) {
@@ -52,13 +91,44 @@ async function getOrCreateTestVendor() {
 // Create a new product with optional variants
 exports.createProduct = async (req, res, next) => {
     try {
-        const { vendorId, name, description, basePrice, unitType, variants } = req.body;
+        const {
+            vendorId,
+            name,
+            description,
+            image,
+            rating,
+            ratingStars,
+            ratingCount,
+            keywords,
+            basePrice,
+            unitType,
+            variants
+        } = req.body;
+        const normalizedRating = normalizeRating(rating, ratingStars, ratingCount);
+
+        const vendor = vendorId
+            ? await prisma.vendor.findUnique({ where: { id: BigInt(vendorId) } })
+            : await prisma.vendor.findUnique({ where: { userId: BigInt(req.user.id) } });
+
+        if (!vendor) {
+            return res.status(400).json({ message: 'Create a vendor profile before adding products' });
+        }
+
+        if (
+            vendor.userId !== BigInt(req.user.id) &&
+            !['admin', 'superadmin'].includes(req.user.role)
+        ) {
+            return res.status(403).json({ message: 'You cannot add products for this vendor' });
+        }
 
         const product = await prisma.product.create({
             data: {
-                vendorId: BigInt(vendorId),
+                vendorId: vendor.id,
                 name,
                 description,
+                image: image || DEFAULT_PRODUCT_IMAGE,
+                ...normalizedRating,
+                keywords: normalizeKeywords(keywords),
                 basePrice,
                 unitType: unitType || 'piece',
                 // Batch create variants if provided (e.g., for fashion)
@@ -75,7 +145,7 @@ exports.createProduct = async (req, res, next) => {
             include: { variants: true }
         });
 
-        res.status(201).json(product);
+        res.status(201).json(serializeProduct(product));
     } catch (error) {
         next(error);
     }
@@ -90,6 +160,11 @@ exports.createTemporaryProduct = async (req, res, next) => {
             description,
             basePrice,
             unitType,
+            image,
+            rating,
+            ratingStars,
+            ratingCount,
+            keywords,
             stockQuantity,
             size,
             color,
@@ -98,6 +173,7 @@ exports.createTemporaryProduct = async (req, res, next) => {
 
         const numericPrice = Number(basePrice);
         const numericStock = Number(stockQuantity || 10);
+        const normalizedRating = normalizeRating(rating, ratingStars, ratingCount);
 
         if (!name || !Number.isFinite(numericPrice) || numericPrice <= 0) {
             return res.status(400).json({ message: 'Product name and valid basePrice are required' });
@@ -109,6 +185,9 @@ exports.createTemporaryProduct = async (req, res, next) => {
                 vendorId: vendor.id,
                 name,
                 description: description || '[TEST] Temporary marketplace product',
+                image: image || DEFAULT_PRODUCT_IMAGE,
+                ...normalizedRating,
+                keywords: normalizeKeywords(keywords),
                 basePrice: numericPrice,
                 unitType: unitType || 'piece',
                 isAvailable: true,
@@ -132,13 +211,7 @@ exports.createTemporaryProduct = async (req, res, next) => {
             }
         });
 
-        res.status(201).json({
-            ...product,
-            vendor: {
-                businessName: product.vendor.businessName,
-                city: product.vendor.user?.city || null
-            }
-        });
+        res.status(201).json(serializeProduct(product));
     } catch (error) {
         next(error);
     }
@@ -182,13 +255,7 @@ exports.getProducts = async (req, res, next) => {
             }
         });
 
-        res.json(products.map((product) => ({
-            ...product,
-            vendor: product.vendor ? {
-                businessName: product.vendor.businessName,
-                city: product.vendor.user?.city || null
-            } : null
-        })));
+        res.json(products.map(serializeProduct));
     } catch (error) {
         next(error);
     }
