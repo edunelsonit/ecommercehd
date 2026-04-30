@@ -1,0 +1,24 @@
+elvekas-backend/
+├── prisma/
+│   └── schema.prisma          # PostgreSQL relational schema
+├── src/
+│   ├── app.js                 # App configuration & Global Middlewares
+│   ├── server.js              # Entry point & Socket.io setup
+│   ├── config/
+│   │   ├── db.js              # Prisma Client initialization
+│   │   └── redis.js           # Redis connection for caching
+│   ├── modules/               # Domain-driven feature sets
+│   │   ├── auth/              # JWT, hashing, & role-based access[cite: 1]
+│   │   ├── wallet/            # Funding, Savings Goals, & Split-payouts[cite: 1]
+│   │   ├── products/          # Variant management & Unit logic (mudu/kg)[cite: 1]
+│   │   ├── orders/            # Checkout, Split-orders, & Status logic[cite: 1]
+│   │   ├── procurement/       # Temu external order estimation engine[cite: 1]
+│   │   ├── logistics/         # Rider assignment & Dynamic pricing logic[cite: 1]
+│   │   └── support/           # Disputes & Automated resolution workflows[cite: 1]
+│   ├── services/              # Cross-cutting third-party services[cite: 1]
+│   │   ├── notification.js    # SMS (Termii) & WhatsApp integration[cite: 1]
+│   │   ├── payment.js         # Paystack webhook & verify services[cite: 1]
+│   │   └── ai-analytics.js    # Price trends & Route optimization[cite: 1]
+│   ├── middlewares/           # Auth guards, Error handlers, & Image compression[cite: 1]
+│   └── utils/                 # Landmark parsers & Currency formatters[cite: 1]
+└── .env                       # Environment secrets[cite: 1]

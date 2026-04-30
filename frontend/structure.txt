@@ -1,0 +1,15 @@
+elvekas-dashboard-web/
+├── src/
+│   ├── api/                   # Centralized Axios instances[cite: 1]
+│   ├── components/            # Reusable UI components[cite: 1]
+│   │   ├── layout/            # Sidebar, Header, & Breadcrumbs[cite: 1]
+│   │   ├── shared/            # Buttons, Modals, & Table components[cite: 1]
+│   │   └── charts/            # Recharts for Vendor Analytics[cite: 1]
+│   ├── pages/                 # Route-level views[cite: 1]
+│   │   ├── admin/             # Rider monitoring & Dispute resolution[cite: 1]
+│   │   └── vendor/            # Product variants, Sub-accounts, & Withdrawals[cite: 1]
+│   ├── hooks/                 # Custom React hooks for data fetching[cite: 1]
+│   ├── store/                 # Zustand state (Auth, Global Filters)[cite: 1]
+│   └── utils/                 # Data transformers for reports[cite: 1]
+├── tailwind.config.js         # Styling for Gembu-optimized UI[cite: 1]
+└── index.html                 # Entry HTML[cite: 1]
