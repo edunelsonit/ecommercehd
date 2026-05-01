@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const errorHandler = require('./middlewares/error.middleware'); // Renamed for consistency
+const errorHandler = require('./middlewares/error.handler');
 const app = express();
 
 /**
@@ -15,7 +15,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', require('./modules/auth/auth.routes'));
-app.use('/api/metadata', require('./modules/metadata/metadata.routes')); // Added Metadata
+app.use('/api/metadata', require('./metadata/metadata.routes')); // Added Metadata
 app.use('/api/wallet', require('./modules/wallet/wallet.routes'));
 app.use('/api/products', require('./modules/products/products.routes'));
 app.use('/api/cart', require('./modules/cart/cart.routes')); // Added Cart

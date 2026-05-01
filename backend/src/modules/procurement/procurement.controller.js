@@ -1,4 +1,4 @@
-const prisma = require('../config/db');
+const prisma = require('../../config/db');
 
 /**
  * Calculates dynamic pricing for Gembu's unique terrain and weather
