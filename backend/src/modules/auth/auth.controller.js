@@ -6,13 +6,17 @@ exports.register = async (req, res, next) => {
     try {
         const {
             surname,
-            first_name,
+            firstName,  // Updated from first_name
+            otherName,
+            genderId,   // New required Int
             phone,
             address,
             password,
             role,
-            lga_region,
+            stateId,    // New relation Int
+            lgaId,      // New relation Int
             city,
+            email,
             nin
         } = req.body;
 
@@ -21,29 +25,33 @@ exports.register = async (req, res, next) => {
         const user = await prisma.user.create({
             data: {
                 surname,
-                first_name,
+                firstName,
+                otherName,
+                genderId: parseInt(genderId),
                 phone,
                 address,
-                lga_region,
+                stateId: stateId ? parseInt(stateId) : null,
+                lgaId: lgaId ? parseInt(lgaId) : null,
                 city,
+                email,
                 nin,
-                password_hash: hashedPassword,
+                passwordHash: hashedPassword, // Matches @map("password_hash")
                 role: role || 'customer',
                 wallet: {
-                    create: {}
+                    create: {} // Automatically creates associated wallet
                 }
             },
             select: {
                 id: true,
                 surname: true,
-                first_name: true,
+                firstName: true,
                 phone: true,
                 role: true,
                 createdAt: true
             }
         });
 
-        res.status(201).json({ message: 'User created', user });
+        res.status(201).json({ message: 'User created successfully', user });
     } catch (error) {
         next(error);
     }
@@ -57,20 +65,15 @@ exports.createVendorProfile = async (req, res, next) => {
             return res.status(400).json({ message: 'businessName and vendorType are required' });
         }
 
+        // req.user.id is now a standard Number/Int
         const updatedUser = await prisma.user.update({
-            where: { id: BigInt(req.user.id) },
+            where: { id: req.user.id },
             data: {
                 role: req.user.role === 'customer' ? 'vendor' : req.user.role,
                 vendorProfile: {
                     upsert: {
-                        update: {
-                            businessName,
-                            vendorType
-                        },
-                        create: {
-                            businessName,
-                            vendorType
-                        }
+                        update: { businessName, vendorType },
+                        create: { businessName, vendorType }
                     }
                 }
             },
@@ -81,12 +84,12 @@ exports.createVendorProfile = async (req, res, next) => {
         });
 
         const token = jwt.sign(
-            { id: updatedUser.id.toString(), role: updatedUser.role },
+            { id: updatedUser.id, role: updatedUser.role },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
         );
 
-        const { password_hash, ...safeUser } = updatedUser;
+        const { passwordHash, ...safeUser } = updatedUser;
         res.status(201).json({ token, user: safeUser });
     } catch (error) {
         next(error);
@@ -96,22 +99,26 @@ exports.createVendorProfile = async (req, res, next) => {
 exports.login = async (req, res, next) => {
     try {
         const { phone, password } = req.body;
+        
         const user = await prisma.user.findUnique({
             where: { phone },
-            include: { wallet: true }
+            include: { 
+                wallet: true,
+                vendorProfile: true 
+            }
         });
 
-        if (!user || !(await bcrypt.compare(password, user.password_hash))) {
+        if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         const token = jwt.sign(
-            { id: user.id.toString(), role: user.role },
+            { id: user.id, role: user.role },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
         );
 
-        const { password_hash, ...safeUser } = user;
+        const { passwordHash, ...safeUser } = user;
         res.json({ token, user: safeUser });
     } catch (error) {
         next(error);

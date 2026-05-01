@@ -22,3 +22,23 @@ elvekas-backend/
 │   ├── middlewares/           # Auth guards, Error handlers, & Image compression[cite: 1]
 │   └── utils/                 # Landmark parsers & Currency formatters[cite: 1]
 └── .env                       # Environment secrets[cite: 1]
+
+src/
+├── config/
+│   └── db.js
+├── middlewares/
+│   ├── auth.middleware.js
+│   └── error.middleware.js
+├── modules/
+│   ├── auth/
+│   ├── wallet/
+│   ├── products/
+│   ├── orders/
+│   ├── cart/
+│   ├── metadata/
+│   ├── procurement/
+│   └── logistics/
+├── services/
+│   ├── notification.service.js
+│   └── payment.service.js
+└── app.js

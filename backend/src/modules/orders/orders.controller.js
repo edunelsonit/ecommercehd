@@ -3,8 +3,9 @@ const { generateOTP } = require('../../utils/otp-generator');
 
 exports.getOrders = async (req, res, next) => {
     try {
+        // req.user.id is now a standard Number
         const orders = await prisma.order.findMany({
-            where: { userId: BigInt(req.user.id) },
+            where: { userId: req.user.id },
             orderBy: { createdAt: 'desc' },
             include: {
                 items: {
@@ -33,16 +34,16 @@ exports.createOrder = async (req, res, next) => {
 
         const order = await prisma.order.create({
             data: {
-                userId: BigInt(req.user.id),
-                totalAmount,
+                userId: req.user.id,
+                totalAmount: parseFloat(totalAmount),
                 landmarkAddress,
-                otpCode: generateOTP(),
+                otpCode: generateOTP(), // Generates the delivery verification code
                 items: {
                     create: items.map((item) => ({
-                        productId: BigInt(item.productId),
-                        variantId: item.variantId ? BigInt(item.variantId) : null,
+                        productId: parseInt(item.productId),
+                        variantId: item.variantId ? parseInt(item.variantId) : null,
                         quantity: item.quantity,
-                        priceAtPurchase: item.price
+                        priceAtPurchase: parseFloat(item.price)
                     }))
                 }
             },
@@ -60,13 +61,14 @@ exports.verifyOTP = async (req, res, next) => {
         const { orderId, otp } = req.body;
 
         const order = await prisma.order.findUnique({
-            where: { id: BigInt(orderId) }
+            where: { id: parseInt(orderId) }
         });
 
         if (!order || order.otpCode !== otp) {
             return res.status(400).json({ message: 'Invalid delivery OTP' });
         }
 
+        // Standardized to match the DeliveryStatus enum in your schema
         const updatedOrder = await prisma.order.update({
             where: { id: order.id },
             data: {

@@ -3,12 +3,11 @@ const router = express.Router();
 const productController = require('./products.controller');
 const verifyToken = require('../../middlewares/auth.middleware');
 
-// Public routes for browsing
+// Public: View marketplace
 router.get('/', productController.getProducts);
 
-// Protected routes
+// Vendor/Admin: Manage inventory
 router.post('/add', verifyToken, productController.createProduct);
-router.post('/temporary', verifyToken, productController.createTemporaryProduct);
 router.patch('/stock', verifyToken, productController.updateStock);
 
 module.exports = router;

@@ -7,16 +7,17 @@ exports.fileDispute = async (req, res, next) => {
         const dispute = await prisma.$transaction(async (tx) => {
             const createdDispute = await tx.dispute.create({
                 data: {
-                    orderId: BigInt(orderId),
-                    userId: BigInt(req.user.id),
+                    orderId: parseInt(orderId),
+                    userId: req.user.id, // req.user.id is already an Int from middleware
                     reason,
                     status: 'open'
                 }
             });
 
+            // Automatically set order to cancelled or 'disputed' status
             await tx.order.update({
-                where: { id: BigInt(orderId) },
-                data: { orderStatus: 'cancelled' }
+                where: { id: parseInt(orderId) },
+                data: { orderStatus: 'cancelled' } // Or 'disputed' if you added that to Enum
             });
 
             return createdDispute;
@@ -26,4 +27,8 @@ exports.fileDispute = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};
+
+exports.formatAddress = (city, lgaName, landmark) => {
+    return `${landmark}, ${city}, ${lgaName} LGA, Taraba State, Nigeria`;
 };
