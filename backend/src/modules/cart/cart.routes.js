@@ -1,21 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const cartController = require('./cart.controller');
-const verifyTokenOptional = require('../../middlewares/auth-optional.middleware'); // A middleware that doesn't block if no token
+const verifyToken = require('../../middlewares/auth.middleware'); // A middleware that doesn't block if no token
 
 // Get current cart status
-router.get('/', verifyTokenOptional, cartController.getCart);
+router.get('/', verifyToken, cartController.getCart);
 
 // Add item to cart
-router.post('/add', verifyTokenOptional, cartController.addToCart);
+router.post('/add', verifyToken, cartController.addToCart);
 
 // Update item quantity
-router.patch('/quantity', verifyTokenOptional, cartController.updateQuantity);
+router.patch('/quantity', verifyToken, cartController.updateQuantity);
 
 // Remove specific item
-router.delete('/item/:cartItemId', verifyTokenOptional, cartController.removeItem);
+router.delete('/item/:cartItemId', verifyToken, cartController.removeItem);
 
 // Clear entire cart
-router.delete('/clear', verifyTokenOptional, cartController.clearCart);
+router.delete('/clear', verifyToken, cartController.clearCart);
 
 module.exports = router;

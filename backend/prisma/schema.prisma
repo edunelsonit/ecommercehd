@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  //url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
 // --- ENUMS ---
@@ -13,9 +13,7 @@ enum UserRole {
   customer
   vendor
   rider
-  restaurant
   superadmin
-  organization
   admin
 }
 
@@ -69,8 +67,8 @@ model Gender {
 
 model User {
   id        Int     @id @default(autoincrement())
-  surname   String  @db.VarChar(255)
-  firstName String  @map("first_name") @db.VarChar(255)
+  surname   String?  @db.VarChar(255)
+  firstName String?  @map("first_name") @db.VarChar(255)
   otherName String? @map("other_name") @db.VarChar(255)
 
   genderId Int    @map("gender_id")
@@ -85,9 +83,10 @@ model User {
   lga     LocalGovernment? @relation(fields: [lgaId], references: [id])
 
   city         String?  @db.VarChar(100)
-  address      String   @db.VarChar(255)
-  email        String?  @unique @db.VarChar(255)
+  address      String?   @db.VarChar(255)
+  email        String  @unique @db.VarChar(255)
   nin          String?  @unique @db.VarChar(11)
+  image        String?   @@db.VarChar(255)
   passwordHash String   @map("password_hash") @db.Text
   role         UserRole @default(customer)
   createdAt    DateTime @default(now()) @map("created_at")

@@ -5,46 +5,30 @@ const prisma = require('../../config/db');
 exports.register = async (req, res, next) => {
     try {
         const {
-            surname,
-            firstName,  // Updated from first_name
-            otherName,
             genderId,   // New required Int
             phone,
-            address,
             password,
-            role,
-            stateId,    // New relation Int
-            lgaId,      // New relation Int
-            city,
             email,
-            nin
         } = req.body;
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await prisma.user.create({
             data: {
-                surname,
-                firstName,
-                otherName,
                 genderId: parseInt(genderId),
                 phone,
-                address,
-                stateId: stateId ? parseInt(stateId) : null,
-                lgaId: lgaId ? parseInt(lgaId) : null,
-                city,
+                stateId: 1,
+                lgaId: 1,
+                city:city || "Gembu",
                 email,
-                nin,
                 passwordHash: hashedPassword, // Matches @map("password_hash")
-                role: role || 'customer',
+                role: 'customer',
                 wallet: {
                     create: {} // Automatically creates associated wallet
                 }
             },
             select: {
                 id: true,
-                surname: true,
-                firstName: true,
                 phone: true,
                 role: true,
                 createdAt: true
@@ -86,7 +70,7 @@ exports.createVendorProfile = async (req, res, next) => {
         const token = jwt.sign(
             { id: updatedUser.id, role: updatedUser.role },
             process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+            { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
         );
 
         const { passwordHash, ...safeUser } = updatedUser;
@@ -98,10 +82,10 @@ exports.createVendorProfile = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
     try {
-        const { phone, password } = req.body;
+        const { email, password } = req.body;
         
         const user = await prisma.user.findUnique({
-            where: { phone },
+            where: { email },
             include: { 
                 wallet: true,
                 vendorProfile: true 
@@ -115,11 +99,62 @@ exports.login = async (req, res, next) => {
         const token = jwt.sign(
             { id: user.id, role: user.role },
             process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+            { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
         );
 
         const { passwordHash, ...safeUser } = user;
         res.json({ token, user: safeUser });
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.updateProfile = async (req, res, next) => {
+    try {
+        const {
+            surname,
+            firstName,  // Updated from first_name
+            otherName,
+            genderId,   // New required Int
+            phone,
+            password,
+            city,
+            email,
+            nin,
+        } = req.body;
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = await prisma.user.create({
+            data: {
+                surname,
+                firstName,
+                otherName,
+                genderId: parseInt(genderId),
+                phone,
+                address,
+                stateId: 1,
+                lgaId: 1,
+                city:city || "Gembu",
+                email,
+                nin,
+                passwordHash: hashedPassword, // Matches @map("password_hash")
+                role: 'customer',
+                wallet: {
+                    create: {} // Automatically creates associated wallet
+                }
+            },
+            select: {
+                id: true,
+                surname: true,
+                firstName: true,
+                phone: true,
+                role: true,
+                createdAt: true
+            }
+        });
+
+        res.status(201).json({ message: 'User created successfully', user });
     } catch (error) {
         next(error);
     }

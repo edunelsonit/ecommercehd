@@ -12,6 +12,7 @@ const validateRegister = (req, res, next) => {
 
 router.post('/register', validateRegister, authController.register);
 router.post('/login', authController.login);
+router.post('/updateProfile', authController.updateProfile)
 router.post('/vendor-profile', verifyToken, authController.createVendorProfile);
 
 module.exports = router;
