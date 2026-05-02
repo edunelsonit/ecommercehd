@@ -1,3 +1,11 @@
 npx prisma migrate dev
 
+//Fix Prisma Formating
 npx prisma format
+
+//Prisma Generate updated Javascript For Prisma
+npx prisma generate
+
+
+//Update Database Columns
+npx prisma db push

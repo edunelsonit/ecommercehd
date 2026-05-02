@@ -1,16 +1,18 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const errorHandler = require('./middlewares/error.handler');
 const app = express();
 
-/**
- * OPTIONAL: Remove the BigInt.prototype.toJSON line. 
- * Since we migrated the schema to 'Int', Prisma will no longer return BigInts.
- * Keeping this won't break anything, but it's no longer necessary.
- */
 
 // Global Middlewares
-app.use(cors());
+// 1. ALWAYS FIRST
+app.use(cors({
+    origin: 'http://localhost:5173', // Be specific to your frontend port
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
 // Routes

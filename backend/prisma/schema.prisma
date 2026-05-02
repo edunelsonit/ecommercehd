@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  //url      = env("DATABASE_URL")
 }
 
 // --- ENUMS ---
@@ -67,10 +67,10 @@ model Gender {
 
 model User {
   id        Int     @id @default(autoincrement())
-  surname   String?  @db.VarChar(255)
-  firstName String?  @map("first_name") @db.VarChar(255)
-  otherName String? @map("other_name") @db.VarChar(255)
-
+  surname      String?  @db.VarChar(255)
+  firstName    String?  @map("first_name") @db.VarChar(255)
+  otherName    String?  @map("other_name") @db.VarChar(255)
+  dob          DateTime? @db.Date
   genderId Int    @map("gender_id")
   gender   Gender @relation(fields: [genderId], references: [id])
 
@@ -86,8 +86,10 @@ model User {
   address      String?   @db.VarChar(255)
   email        String  @unique @db.VarChar(255)
   nin          String?  @unique @db.VarChar(11)
-  image        String?   @@db.VarChar(255)
+  image        String?   @db.VarChar(255)
   passwordHash String   @map("password_hash") @db.Text
+  passwordResetToken   String?   @map("password_reset_token") @db.VarChar(255)
+  passwordResetExpires DateTime? @map("password_reset_expires")
   role         UserRole @default(customer)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
