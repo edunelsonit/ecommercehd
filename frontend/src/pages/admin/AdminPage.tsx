@@ -1,7 +1,7 @@
-import { apiRequest } from '../../api/client'
 import { StatusMessage } from '../../components/shared/StatusMessage'
 import { useAsyncAction } from '../../hooks/useAsyncAction'
 import type { AuthState } from '../../store/auth'
+import api from '../../api/axios'
 
 type AdminPageProps = {
   auth: AuthState | null
@@ -19,7 +19,7 @@ export function AdminPage({ auth }: AdminPageProps) {
     const formElement = event.currentTarget
     const form = new FormData(formElement)
     await assignAction.run(async () => {
-      await apiRequest('/logistics/assign-rider', auth.token, {
+      await api.post('/logistics/assign-rider', auth.token, {
         method: 'POST',
         body: {
           orderId: String(form.get('orderId') || ''),
@@ -39,7 +39,7 @@ export function AdminPage({ auth }: AdminPageProps) {
     const formElement = event.currentTarget
     const form = new FormData(formElement)
     await verifyAction.run(async () => {
-      await apiRequest('/orders/verify-delivery', auth.token, {
+      await api.post('/orders/verify-delivery', auth.token, {
         method: 'POST',
         body: {
           orderId: String(form.get('verifyOrderId') || ''),
@@ -58,7 +58,7 @@ export function AdminPage({ auth }: AdminPageProps) {
     const formElement = event.currentTarget
     const form = new FormData(formElement)
     await temporaryProductAction.run(async () => {
-      await apiRequest('/products/temporary', auth.token, {
+      await api.post('/products/temporary', auth.token, {
         method: 'POST',
         body: {
           name: String(form.get('name') || ''),

@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react'
-import { apiRequest } from '../../api/client'
-import Product, { type HomeProduct } from './Product'
+import api from "../../api/axios";
+import { Product } from './Product'
 
 
 const ProductsDisplay = () => {
-  const [products, setProducts] = useState<HomeProduct[]>([])
+  const [products, setProducts] = useState<Product[]>([])
   const [error, setError] = useState('')
 
   useEffect(() => {
     async function loadProducts() {
       try {
-        const data = await apiRequest<HomeProduct[]>('/products?city=Gembu')
-        setProducts(data)
+        const productList = await api.get('/api/products');
+        setProducts(productList)
       } catch (requestError) {
         const message =
           requestError && typeof requestError === 'object' && 'message' in requestError
@@ -24,6 +24,13 @@ const ProductsDisplay = () => {
     void loadProducts()
   }, [])
 
+  if(!products[0]){
+    return(
+      <>
+      <h1>No Products available in the Market Yet</h1>
+      </>
+    )
+  }
   return (
     <div className="home-products">
       {error && <div className="status status-error">{error}</div>}
@@ -34,6 +41,6 @@ const ProductsDisplay = () => {
       </div>
     </div>
   )
-}
+};
 
-export default ProductsDisplay
+export default ProductsDisplay;

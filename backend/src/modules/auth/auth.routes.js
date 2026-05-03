@@ -12,7 +12,7 @@ const validateRegister = (req, res, next) => {
 
 router.post('/register', validateRegister, authController.register);
 router.post('/login', authController.login);
-router.post('/updateProfile', authController.updateProfile)
+router.put('/update-profile', authController.updateProfile)
 router.post('/vendor-profile', protect, authController.createVendorProfile);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/verify-otp', authController.verifyOtp);

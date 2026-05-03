@@ -129,88 +129,56 @@ exports.login = async (req, res, next) => {
   }
 };
 exports.updateProfile = async (req, res, next) => {
-  try {
-    const {
-      surname,
-      firstName,
-      otherName,
-      dob,
-      genderId,
-      phone,
-      nationality,
-      stateId,
-      lgaId,
-      city,
-      address,
-      nin,
-    } = req.body;
+    try {
+         // From protect middleware
+        
+        const data = req.body;
+        
+        //const userId = req.user.id;
+        const userId = Number(data.id);
+        console.log(userId);
+        console.log(data)
+        const updatedUser = await prisma.user.update({
+            
+            where: { id: Number(userId) },
+            data: {
+                surname: data.surname,
+                firstName: data.firstName,
+                otherName: data.otherName,
+                dob: data.dob ? new Date(data.dob) : null,
+                phone: data.phone,
+                nationality: data.nationality,
+                stateId: data.stateId,
+                lgaId: data.lgaId,
+                city: data.city,
+                address: data.address,
+                nin: data.nin,
+                tin: data.tin,
+                // Do NOT include role or passwordHash here for security
+            },
+            include: {
+                wallet: true,
+                state: true,
+                lga: true
+            }
+        });
 
-    // req.user.id comes from your verifyToken middleware
-    const userId = req.user.id;
+        // Construct the safe response object
+        const { passwordHash, passwordResetToken, passwordResetExpires, ...safeUser } = updatedUser;
+        
+        // Flatten balance for frontend ease
+        safeUser.balance = updatedUser.wallet?.balance || "0";
 
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        surname: surname || undefined,
-        firstName: firstName || undefined,
-        otherName: otherName || undefined,
-        // Formatting the Date for Prisma
-        dob: dob ? new Date(dob) : undefined,
-        genderId: genderId ? parseInt(genderId) : undefined,
-        phone: phone || undefined,
-        nationality: nationality || undefined,
-        stateId: stateId ? parseInt(stateId) : undefined,
-        lgaId: lgaId ? parseInt(lgaId) : undefined,
-        city: city || undefined,
-        address: address || undefined,
-        nin: nin || undefined,
-      },
-      include: {
-        gender: true,
-        state: true,
-        lga: true,
-      },
-    });
-
-    // Remove sensitive data before sending to frontend
-    const { passwordHash, ...safeUser } = updatedUser;
-
-    res.status(200).json({
-      message: "Profile updated successfully",
-      user: safeUser,
-    });
-  } catch (error) {
-    // Handle Unique Constraint Errors (e.g., NIN or Phone already exists)
-    if (error.code === "P2002") {
-      return res.status(400).json({
-        message: `The ${error.meta.target[0]} provided is already in use.`,
-      });
+        res.status(200).json({
+            success: true,
+            user: safeUser
+        });
+    } catch (error) {
+        if (error.code === 'P2002') {
+            return res.status(400).json({ message: "Phone or NIN already exists" });
+        }
+        next(error);
     }
-    next(error);
-  }
-};
-
-exports.getProfile = async (req, res, next) => {
-  try {
-    const userId = req.user.id;
-
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        wallet: true,
-        vendorProfile: true,
-      },
-    });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const { passwordHash, ...safeUser } = user;
-    res.json({ user: safeUser });
-  } catch (error) {
-    next(error);
-  }
 };
 
 // STEP 1: Generate & Send OTP
@@ -338,6 +306,7 @@ exports.getProfile = async (req, res, next) => {
             email: user.email,
             firstName: user.firstName,
             surname: user.surname,
+            genderId:user.genderId,
             phone: user.phone,
             role: user.role,
             nationality: user.nationality,

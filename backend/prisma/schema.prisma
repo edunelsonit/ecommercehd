@@ -73,19 +73,17 @@ model User {
   dob          DateTime? @db.Date
   genderId Int    @map("gender_id")
   gender   Gender @relation(fields: [genderId], references: [id])
-
   phone       String? @unique @db.VarChar(20)
   nationality String? @default("Nigerian") @db.VarChar(50)
-
   stateId Int?             @map("state_id")
   state   State?           @relation(fields: [stateId], references: [id])
   lgaId   Int?             @map("lga_id")
   lga     LocalGovernment? @relation(fields: [lgaId], references: [id])
-
   city         String?  @db.VarChar(100)
   address      String?   @db.VarChar(255)
   email        String  @unique @db.VarChar(255)
   nin          String?  @unique @db.VarChar(11)
+  tin          String?  @unique @db.VarChar(13)
   image        String?   @db.VarChar(255)
   passwordHash String   @map("password_hash") @db.Text
   passwordResetToken   String?   @map("password_reset_token") @db.VarChar(255)
@@ -323,6 +321,7 @@ model CartItem {
   id        Int     @id @default(autoincrement())
   cartId    String  @map("cart_id")
   productId Int     @map("product_id")
+  quantity  Int      @default(1)
   cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
   product   Product @relation(fields: [productId], references: [id])
 
