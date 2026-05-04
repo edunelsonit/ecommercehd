@@ -96,7 +96,8 @@ const getRecentOrders = async (req, res, next) => {
         next(error); 
     }
 };
-exports.addVendor = async (req, res, next) => {
+
+const addVendor = async (req, res, next) => {
     try {
         const { 
             userId, 
@@ -153,11 +154,42 @@ exports.addVendor = async (req, res, next) => {
         next(error);
     }
 };
+
+const getEligibleUsers = async (req, res, next) => {
+    try {
+        const { role } = req.query;
+
+        const users = await prisma.user.findMany({
+            where: {
+                role: role || 'customer',
+                // This ensures we only get users who don't have a vendor profile yet
+                vendor: null 
+            },
+            select: {
+                id: true,
+                firstName: true,
+                surname: true,
+                email: true
+            },
+            orderBy: {
+                firstName: 'asc'
+            }
+        });
+
+        res.json({
+            success: true,
+            data: users
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 // EXPORT ALL AT ONCE (This prevents the "not a function" error)
 module.exports = { 
     getOverview, 
     getDashboardStats, 
     getRecentOrders,
-    addVendor
+    addVendor,
+    getEligibleUsers
 };
 

@@ -16,4 +16,8 @@ router.post('/vendors', protect, adminController.addVendor);
 // Route for the recent orders table
 router.get('/recent-orders', protect, adminController.getRecentOrders);
 
+// ... other routes
+router.get('/users', adminController.getEligibleUsers); // Ensure this line exists
+router.post('/vendors', adminController.addVendor);
+
 module.exports = router;

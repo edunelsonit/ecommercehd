@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  //url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
 // --- ENUMS ---
@@ -66,53 +66,53 @@ model Gender {
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  surname      String?  @db.VarChar(255)
-  firstName    String?  @map("first_name") @db.VarChar(255)
-  otherName    String?  @map("other_name") @db.VarChar(255)
-  dob          DateTime? @db.Date
-  genderId Int    @map("gender_id")
-  gender   Gender @relation(fields: [genderId], references: [id])
-  phone       String? @unique @db.VarChar(20)
-  nationality String? @default("Nigerian") @db.VarChar(50)
-  stateId Int?             @map("state_id")
-  state   State?           @relation(fields: [stateId], references: [id])
-  lgaId   Int?             @map("lga_id")
-  lga     LocalGovernment? @relation(fields: [lgaId], references: [id])
-  city         String?  @db.VarChar(100)
-  address      String?   @db.VarChar(255)
-  email        String  @unique @db.VarChar(255)
-  nin          String?  @unique @db.VarChar(11)
-  tin          String?  @unique @db.VarChar(13)
-  image        String?   @db.VarChar(255)
-  passwordHash String   @map("password_hash") @db.Text
-  passwordResetToken   String?   @map("password_reset_token") @db.VarChar(255)
-  passwordResetExpires DateTime? @map("password_reset_expires")
-  role         UserRole @default(customer)
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id                   Int               @id @default(autoincrement())
+  surname              String?           @db.VarChar(255)
+  firstName            String?           @map("first_name") @db.VarChar(255)
+  otherName            String?           @map("other_name") @db.VarChar(255)
+  dob                  DateTime?         @db.Date
+  genderId             Int               @map("gender_id")
+  gender               Gender            @relation(fields: [genderId], references: [id])
+  phone                String?           @unique @db.VarChar(20)
+  nationality          String?           @default("Nigerian") @db.VarChar(50)
+  stateId              Int?              @map("state_id")
+  state                State?            @relation(fields: [stateId], references: [id])
+  lgaId                Int?              @map("lga_id")
+  lga                  LocalGovernment?  @relation(fields: [lgaId], references: [id])
+  city                 String?           @db.VarChar(100)
+  address              String?           @db.VarChar(255)
+  email                String            @unique @db.VarChar(255)
+  nin                  String?           @unique @db.VarChar(11)
+  tin                  String?           @unique @db.VarChar(13)
+  image                String?           @db.VarChar(255)
+  passwordHash         String            @map("password_hash") @db.Text
+  passwordResetToken   String?           @map("password_reset_token") @db.VarChar(255)
+  passwordResetExpires DateTime?         @map("password_reset_expires")
+  role                 UserRole          @default(customer)
+  createdAt            DateTime          @default(now()) @map("created_at")
+  updatedAt            DateTime          @updatedAt @map("updated_at")
 
-  wallet         Wallet?
-  vendorProfile  Vendor?
-  cart           Cart?
-  referralJoined Referral? @relation("Referee")
+  wallet               Wallet?
+  vendorProfile        Vendor?
+  cart                 Cart?
+  referralJoined       Referral?         @relation("Referee")
 
-  savingsGoals  SavingsGoal[]
-  orders        Order[]
-  procurements  ExternalProcurement[]
-  disputes      Dispute[]
-  referralsMade Referral[]            @relation("Referrer")
-  deliveries    Delivery[]            @relation("RiderDeliveries")
+  savingsGoals         SavingsGoal[]
+  orders               Order[]
+  procurements         ExternalProcurement[]
+  disputes             Dispute[]
+  referralsMade        Referral[]        @relation("Referrer")
+  deliveries           Delivery[]        @relation("RiderDeliveries")
 
   @@map("users")
 }
 
 model Wallet {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @unique @map("user_id")
-  balance   Decimal  @default(0.00) @db.Decimal(15, 2)
-  currency  String   @default("NGN") @db.VarChar(10)
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id           Int                 @id @default(autoincrement())
+  userId       Int                 @unique @map("user_id")
+  balance      Decimal             @default(0.00) @db.Decimal(15, 2)
+  currency     String              @default("NGN") @db.VarChar(10)
+  updatedAt    DateTime            @updatedAt @map("updated_at")
 
   user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions WalletTransaction[]
@@ -129,7 +129,7 @@ model WalletTransaction {
   reference       String?         @unique @db.VarChar(100)
   createdAt       DateTime        @default(now()) @map("created_at")
 
-  wallet Wallet @relation(fields: [walletId], references: [id])
+  wallet          Wallet          @relation(fields: [walletId], references: [id])
 
   @@map("wallet_transactions")
 }
@@ -149,23 +149,21 @@ model SavingsGoal {
 }
 
 model Vendor {
-   id          String   @id @default(uuid())
-  userId       Int      @unique @map("user_id")
-  businessName String   @map("business_name") @db.VarChar(255)
-  vendorType   String   @map("vendor_type") @db.VarChar(50)
-  isVerified   Boolean  @default(false) @map("is_verified")
-  isCacRegistered   Boolean  @default(false)
-  cacNumber     Int   @db.
-  
-  rating       Decimal  @default(5.00) @db.Decimal(3, 2)
-  createdAt    DateTime @default(now()) @map("created_at")
-  email       String   @unique
-  phone       String
-  category    String
-  status      String   @default("active") // active, suspended, pending
-  address     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String    @id @default(uuid())
+  userId          Int       @unique @map("user_id")
+  businessName    String    @map("business_name") @db.VarChar(255)
+  vendorType      String    @map("vendor_type") @db.VarChar(50)
+  email           String    @unique @db.VarChar(255)
+  phone           String    @db.VarChar(20)
+  category        String    @db.VarChar(100)
+  address         String?   @db.Text
+  status          String    @default("active") @db.VarChar(20) // active, suspended, pending
+  isVerified      Boolean   @default(false) @map("is_verified")
+  isCacRegistered Boolean   @default(false) @map("is_cac_registered")
+  cacNumber       Int?      @map("cac_number")
+  rating          Decimal   @default(5.00) @db.Decimal(3, 2)
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
   user     User      @relation(fields: [userId], references: [id])
   products Product[]
@@ -183,24 +181,24 @@ model Category {
 }
 
 model Product {
-  id             Int      @id @default(autoincrement())
-  vendorId       Int      @map("vendor_id")
-  categoryId     Int      @map("category_id")
-  name           String   @db.VarChar(255)
-  description    String?  @db.Text
-  image          String?  @db.Text
-  ratingStars    Int      @default(0) @map("rating_stars")
-  ratingCount    Int      @default(0) @map("rating_count")
-  keywords       String[] @default([])
-  basePrice      Decimal  @map("base_price") @db.Decimal(15, 2)
-  unitType       String   @default("piece") @map("unit_type") @db.VarChar(20)
-  isAvailable    Boolean  @default(true) @map("is_available")
-  stockThreshold Int      @default(5) @map("stock_threshold")
-  createdAt      DateTime @default(now()) @map("created_at")
+  id              Int              @id @default(autoincrement())
+  vendorId        String           @map("vendor_id")
+  categoryId      Int              @map("category_id")
+  name            String           @db.VarChar(255)
+  description     String?          @db.Text
+  image           String?          @db.Text
+  ratingStars     Int              @default(0) @map("rating_stars")
+  ratingCount     Int              @default(0) @map("rating_count")
+  keywords        String[]         @default([])
+  basePrice       Decimal          @map("base_price") @db.Decimal(15, 2)
+  unitType        String           @default("piece") @map("unit_type") @db.VarChar(20)
+  isAvailable     Boolean          @default(true) @map("is_available")
+  stockThreshold  Int              @default(5) @map("stock_threshold")
+  createdAt       DateTime         @default(now()) @map("created_at")
 
-  vendor     Vendor           @relation(fields: [vendorId], references: [id])
-  category   Category         @relation(fields: [categoryId], references: [id])
-  variants   ProductVariant[]
+  vendor    Vendor           @relation(fields: [vendorId], references: [id])
+  category  Category         @relation(fields: [categoryId], references: [id])
+  variants  ProductVariant[]
   orderItems OrderItem[]
   cartItems  CartItem[]
 
@@ -241,14 +239,14 @@ model Order {
 }
 
 model OrderItem {
-  id              Int     @id @default(autoincrement())
-  orderId         Int     @map("order_id")
-  productId       Int     @map("product_id")
-  variantId       Int?    @map("variant_id")
+  id              Int             @id @default(autoincrement())
+  orderId         Int             @map("order_id")
+  productId       Int             @map("product_id")
+  variantId       Int?            @map("variant_id")
   quantity        Int
-  priceAtPurchase Decimal @map("price_at_purchase") @db.Decimal(15, 2)
+  priceAtPurchase Decimal         @map("price_at_purchase") @db.Decimal(15, 2)
 
-  order   Order           @relation(fields: [orderId], references: [id])
+  order   Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product Product         @relation(fields: [productId], references: [id])
   variant ProductVariant? @relation(fields: [variantId], references: [id])
 
@@ -285,15 +283,15 @@ model Referral {
 }
 
 model ExternalProcurement {
-  id                 Int               @id @default(autoincrement())
-  userId             Int               @map("user_id")
-  productUrl         String            @map("product_url") @db.Text
-  estimatedCost      Decimal           @map("estimated_cost") @db.Decimal(15, 2)
+  id                  Int               @id @default(autoincrement())
+  userId              Int               @map("user_id")
+  productUrl          String            @map("product_url") @db.Text
+  estimatedCost       Decimal           @map("estimated_cost") @db.Decimal(15, 2)
   shippingCustomsFee Decimal           @map("shipping_customs_fee") @db.Decimal(15, 2)
-  serviceFee         Decimal           @map("service_fee") @db.Decimal(15, 2)
-  finalTotal         Decimal           @map("final_total") @db.Decimal(15, 2)
-  status             ProcurementStatus @default(evaluating)
-  createdAt          DateTime          @default(now()) @map("created_at")
+  serviceFee          Decimal           @map("service_fee") @db.Decimal(15, 2)
+  finalTotal          Decimal           @map("final_total") @db.Decimal(15, 2)
+  status              ProcurementStatus @default(evaluating)
+  createdAt           DateTime          @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id])
 
@@ -331,9 +329,10 @@ model CartItem {
   id        Int     @id @default(autoincrement())
   cartId    String  @map("cart_id")
   productId Int     @map("product_id")
-  quantity  Int      @default(1)
-  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int     @default(1)
+
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
 
   @@map("cart_items")
 }
