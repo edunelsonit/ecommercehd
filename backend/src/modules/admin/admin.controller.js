@@ -96,10 +96,68 @@ const getRecentOrders = async (req, res, next) => {
         next(error); 
     }
 };
+exports.addVendor = async (req, res, next) => {
+    try {
+        const { 
+            userId, 
+            businessName, 
+            vendorType, 
+            email, 
+            phone, 
+            category, 
+            address, 
+            isCacRegistered, 
+            cacNumber 
+        } = req.body;
 
+        // 1. Check if user exists and is not already a vendor
+        const user = await prisma.user.findUnique({
+            where: { id: parseInt(userId) }
+        });
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        const existingVendor = await prisma.vendor.findUnique({
+            where: { userId: parseInt(userId) }
+        });
+
+        if (existingVendor) {
+            return res.status(400).json({ success: false, message: "This user is already registered as a vendor" });
+        }
+
+        // 2. Create the Vendor record
+        const newVendor = await prisma.vendor.create({
+            data: {
+                userId: parseInt(userId),
+                businessName,
+                vendorType,
+                email,
+                phone,
+                category,
+                address,
+                isCacRegistered: isCacRegistered === 'true' || isCacRegistered === true,
+                cacNumber: cacNumber ? parseInt(cacNumber) : null,
+                status: 'active',
+                isVerified: false // Admin manually verifies later
+            }
+        });
+
+        res.status(201).json({
+            success: true,
+            message: "Vendor profile created successfully",
+            data: newVendor
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 // EXPORT ALL AT ONCE (This prevents the "not a function" error)
 module.exports = { 
     getOverview, 
     getDashboardStats, 
-    getRecentOrders 
+    getRecentOrders,
+    addVendor
 };
+

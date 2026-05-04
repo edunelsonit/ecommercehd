@@ -11,6 +11,7 @@ router.get('/stats', protect, adminController.getDashboardStats);
 
 // Route for general overview (if needed separately)
 router.get('/overview', protect, adminController.getOverview);
+router.post('/vendors', protect, adminController.addVendor);
 
 // Route for the recent orders table
 router.get('/recent-orders', protect, adminController.getRecentOrders);

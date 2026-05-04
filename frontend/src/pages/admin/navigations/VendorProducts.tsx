@@ -1,9 +1,18 @@
-import React from 'react'
+import { useState } from "react";
+import AddVendorModal from "./AddVendorModal";
 
-const VendorProducts = () => {
+const VendorProducts = ({ fetchVendorsList }) => {
+  const [isModalOpen, setModalOpen] = useState(false);
   return (
-    <div>VendorProducts</div>
-  )
-}
+    <div>
+      <button onClick={() => setModalOpen(true)}>Add Vendor</button>
+      <AddVendorModal
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        onRefresh={fetchVendorsList}
+      />
+    </div>
+  );
+};
 
-export default VendorProducts
+export default VendorProducts;
