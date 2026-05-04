@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { 
   Plus, 
   Search, 
@@ -9,39 +9,67 @@ import {
   ExternalLink,
   Store,
   Mail,
-  Phone
 } from "lucide-react";
 import api from "../../../api/axios";
 import AddVendorModal from "./AddVendorModal";
 
+// Define an interface if using TypeScript, or just remove types for JS
+interface Vendor {
+  id: string;
+  businessName: string;
+  email: string;
+  category: string;
+  vendorType: string;
+  isCacRegistered: boolean;
+  cacNumber?: string | number;
+  status: 'active' | 'pending' | 'suspended';
+}
+
 const VendorProducts = () => {
   const [isModalOpen, setModalOpen] = useState(false);
-  const [vendors, setVendors] = useState([]);
+  const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Use a ref to track mounting status to prevent state updates on unmounted component
+  const isMounted = useRef(true);
 
-  // 1. Fetch Vendors List
+  // 1. Fetch Vendors List - Wrapped in useCallback so it's a stable dependency
   const fetchVendorsList = useCallback(async () => {
-    setLoading(true);
     try {
-      const response = await api.get("/api/admin/vendors"); // Adjust endpoint as needed
-      // Assuming your backend returns { success: true, data: [...] }
-      setVendors(response.data.data || []);
+      const response = await api.get("/api/admin/vendors");
+      if (isMounted.current) {
+        setVendors(response.data.data || []);
+      }
     } catch (err) {
       console.error("Error fetching vendors:", err);
     } finally {
-      setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
+  // 2. Initial Data Load
   useEffect(() => {
-    fetchVendorsList();
+    isMounted.current = true;
+    
+    const loadInitialData = async () => {
+      setLoading(true);
+      await fetchVendorsList();
+    };
+
+    loadInitialData();
+
+    return () => {
+      isMounted.current = false;
+    };
   }, [fetchVendorsList]);
 
-  // 2. Filter logic
+  // 3. Derived State: Filter logic (Always do this in the render body, not an effect)
   const filteredVendors = vendors.filter(vendor => 
-    vendor.businessName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    vendor.email.toLowerCase().includes(searchQuery.toLowerCase())
+    vendor.businessName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    vendor.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -50,7 +78,7 @@ const VendorProducts = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Vendors & Products</h1>
-          <p className="text-slate-500 text-sm">Manage your marketplace sellers and their registration status.</p>
+          <p className="text-slate-500 text-sm">Manage marketplace sellers and registration status.</p>
         </div>
         <button 
           onClick={() => setModalOpen(true)}
@@ -74,7 +102,7 @@ const VendorProducts = () => {
           />
         </div>
         <div className="flex items-center gap-2 w-full md:w-auto">
-          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">
+          <button className="flex items-center justify-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
             <Filter size={16} />
             Filters
           </button>
@@ -100,10 +128,11 @@ const VendorProducts = () => {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
-                // Skeleton Loader rows
-                [...Array(3)].map((_, i) => (
-                  <tr key={i} className="animate-pulse">
-                    <td colSpan="5" className="px-6 py-8 bg-slate-50/50"></td>
+                [...Array(5)].map((_, i) => (
+                  <tr key={i}>
+                    <td colSpan={5} className="px-6 py-6">
+                       <div className="h-10 bg-slate-100 rounded-lg animate-pulse w-full"></div>
+                    </td>
                   </tr>
                 ))
               ) : filteredVendors.length > 0 ? (
@@ -116,8 +145,8 @@ const VendorProducts = () => {
                         </div>
                         <div>
                           <p className="font-bold text-slate-900">{vendor.businessName}</p>
-                          <div className="flex flex-col text-xs text-slate-500">
-                            <span className="flex items-center gap-1"><Mail size={12}/> {vendor.email}</span>
+                          <div className="flex items-center gap-1 text-xs text-slate-500">
+                            <Mail size={12}/> {vendor.email}
                           </div>
                         </div>
                       </div>
@@ -162,7 +191,7 @@ const VendorProducts = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="px-6 py-12 text-center text-slate-500">
+                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500 italic">
                     No vendors found matching your search.
                   </td>
                 </tr>
