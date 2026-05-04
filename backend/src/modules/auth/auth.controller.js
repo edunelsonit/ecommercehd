@@ -306,13 +306,19 @@ exports.getProfile = async (req, res, next) => {
             email: user.email,
             firstName: user.firstName,
             surname: user.surname,
+            otherName:user.otherName,
             genderId:user.genderId,
             phone: user.phone,
             role: user.role,
             nationality: user.nationality,
             address: user.address,
             balance: user.wallet?.balance || "0",
-            image: user.image
+            image: user.image,
+            dob: user.dob,
+            city: user.city,
+            address: user.address,
+            nin: user.nin,
+            tin: user.tin,
         };
 
         res.json(safeUser);

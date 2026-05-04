@@ -1,6 +1,7 @@
-const prisma = require('../../config/db');
+const prisma = require("../../config/db");
 
-exports.getOverview = async (req, res, next) => {
+// Helper to get total overview
+const getOverview = async (req, res, next) => {
     try {
         const [totalUsers, totalVendors, totalProducts, activeOrdersCount, pendingProcurementsCount] = await Promise.all([
             prisma.user.count(),
@@ -15,34 +16,23 @@ exports.getOverview = async (req, res, next) => {
             where: { paymentStatus: 'paid' }
         });
 
-        const totalRevenue = revenueAgg._sum.totalAmount || 0;
-
         res.json({
-            totalUsers,
-            totalVendors,
-            totalProducts,
-            activeOrders: activeOrdersCount,
-            pendingProcurements: pendingProcurementsCount,
-            totalRevenue: totalRevenue.toString()
+            success: true,
+            data: {
+                totalUsers,
+                totalVendors,
+                totalProducts,
+                activeOrders: activeOrdersCount,
+                pendingProcurements: pendingProcurementsCount,
+                totalRevenue: revenueAgg._sum.totalAmount || 0
+            }
         });
     } catch (error) {
         next(error);
     }
 };
 
-exports.getRecentOrders = async (req, res, next) => {
-    try {
-        const recent = await prisma.order.findMany({
-            take: 5,
-            orderBy: { createdAt: 'desc' },
-            include: { user: true }
-        });
-        res.json(recent);
-    } catch (error) { next(error); }
-};
-const jwt = require("jsonwebtoken");
-const prisma = require("../../config/db");
-
+// Main Stats call (The one your frontend is currently calling)
 const getDashboardStats = async (req, res, next) => {
     try {
         const [
@@ -52,17 +42,10 @@ const getDashboardStats = async (req, res, next) => {
             procurementStats,
             disputeCount
         ] = await Promise.all([
-            // 1. Total Users
             prisma.user.count(),
-
-            // 2. Active Orders (Pending or Processing)
             prisma.order.count({
-                where: {
-                    orderStatus: { in: ['pending', 'processing'] }
-                }
+                where: { orderStatus: { in: ['pending', 'processing'] } }
             }),
-
-            // 3. Total Revenue (Sum of successful funding or order payments)
             prisma.walletTransaction.aggregate({
                 _sum: { amount: true },
                 where: { 
@@ -70,14 +53,10 @@ const getDashboardStats = async (req, res, next) => {
                     transactionType: 'order_payment'
                 }
             }),
-
-            // 4. Procurement Pipeline (Grouped by status)
             prisma.externalProcurement.groupBy({
                 by: ['status'],
                 _count: { _all: true }
             }),
-
-            // 5. Open Disputes
             prisma.dispute.count({
                 where: { status: 'open' }
             })
@@ -101,4 +80,26 @@ const getDashboardStats = async (req, res, next) => {
     }
 };
 
-module.exports = { getDashboardStats };
+const getRecentOrders = async (req, res, next) => {
+    try {
+        const recent = await prisma.order.findMany({
+            take: 5,
+            orderBy: { createdAt: 'desc' },
+            include: { 
+                user: {
+                    select: { firstName: true, surname: true, email: true }
+                } 
+            }
+        });
+        res.json({ success: true, data: recent });
+    } catch (error) { 
+        next(error); 
+    }
+};
+
+// EXPORT ALL AT ONCE (This prevents the "not a function" error)
+module.exports = { 
+    getOverview, 
+    getDashboardStats, 
+    getRecentOrders 
+};

@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react'
 import api from "../../api/axios";
-import { Product } from './Product'
+//import Product from './Product'
 
 
 const ProductsDisplay = () => {
-  const [products, setProducts] = useState<Product[]>([])
+  //const [products, setProducts] = useState([{}]);
   const [error, setError] = useState('')
 
   useEffect(() => {
     async function loadProducts() {
       try {
         const productList = await api.get('/api/products');
-        setProducts(productList)
+        console.log(productList);
+        //setProducts(productList)
       } catch (requestError) {
         const message =
           requestError && typeof requestError === 'object' && 'message' in requestError
@@ -24,7 +25,7 @@ const ProductsDisplay = () => {
     void loadProducts()
   }, [])
 
-  if(!products[0]){
+  if(!error){
     return(
       <>
       <h1>No Products available in the Market Yet</h1>
@@ -35,9 +36,7 @@ const ProductsDisplay = () => {
     <div className="home-products">
       {error && <div className="status status-error">{error}</div>}
       <div className="product-grid">
-        {products.map((product) => (
-          <Product key={product.id} product={product} />
-        ))}
+        <>Products Will Be Listed Here</>
       </div>
     </div>
   )

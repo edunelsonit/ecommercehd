@@ -3,20 +3,16 @@ const router = express.Router();
 const adminController = require('./admin.controller');
 const { protect } = require('../../middlewares/auth.middleware');
 
-// Overview statistics for admin dashboard
-router.get('/overview', protect, adminController.getOverview);
-router.get('/recent-orders', protect, adminController.getRecentOrders);
-
-module.exports = router;
-const express = require('express');
-const router = express.Router();
-const adminController = require('./admin.controller');
-// const { protect, restrictTo } = require('../../middlewares/auth.middleware');
-
 // Apply protection to all admin routes
 router.use(protect);
-router.use(restrictTo('admin', 'superadmin'));
 
-router.get('/stats', adminController.getDashboardStats);
+// Route for the main stats cards and pipeline
+router.get('/stats', protect, adminController.getDashboardStats);
+
+// Route for general overview (if needed separately)
+router.get('/overview', protect, adminController.getOverview);
+
+// Route for the recent orders table
+router.get('/recent-orders', protect, adminController.getRecentOrders);
 
 module.exports = router;
