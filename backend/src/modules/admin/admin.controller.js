@@ -133,12 +133,10 @@ const addVendor = async (req, res, next) => {
     });
 
     if (existingVendor) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "This user is already registered as a vendor",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "This user is already registered as a vendor",
+      });
     }
 
     // 2. Create the Vendor record
@@ -196,11 +194,92 @@ const getEligibleUsers = async (req, res, next) => {
     next(error);
   }
 };
+
+const getLogisticsData = async (req, res, next) => {
+  try {
+    const deliveries = await prisma.delivery.findMany({
+      include: {
+        rider: { select: { firstName: true, surname: true } },
+        order: { select: { landmarkAddress: true, orderStatus: true } },
+      },
+      orderBy: { assignedAt: "desc" },
+    });
+    res.json({ success: true, data: deliveries });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getProcurements = async (req, res) => {
+  const procurements = await prisma.externalProcurement.findMany({
+    include: {
+      user: { select: { firstName: true, surname: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  res.json({ success: true, data: procurements });
+};
+
+const getFinancialOverview = async (req, res, next) => {
+  try {
+    // 1. Fetch recent transactions
+    const transactions = await prisma.walletTransaction.findMany({
+      take: 10,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        wallet: { 
+          include: { 
+            user: { select: { firstName: true, surname: true } } 
+          } 
+        }
+      }
+    });
+
+    // 2. Aggregate Totals using your specific Enum values
+    const stats = await prisma.walletTransaction.groupBy({
+      by: ['transactionType'], // Matches your schema exactly
+      _sum: { amount: true },
+      where: { status: "SUCCESS" } // Ensure your DB uses uppercase 'SUCCESS' or lowercase 'success'
+    });
+
+    // 3. Map aggregates to your frontend summary
+    // We map 'funding' to inflow and 'withdrawal' to outflow
+    const summary = {
+      totalBalance: 0, 
+      totalInflow: stats.find(s => s.transactionType === 'funding')?._sum.amount || 0,
+      totalOutflow: stats.find(s => s.transactionType === 'withdrawal')?._sum.amount || 0,
+    };
+
+    res.json({ success: true, transactions, summary });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getDisputes = async (req, res, next) => {
+  try {
+    const disputes = await prisma.dispute.findMany({
+      include: {
+        user: { select: { firstName: true, surname: true, email: true } },
+        order: { select: { totalAmount: true, orderStatus: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json({ success: true, data: disputes });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // EXPORT ALL AT ONCE (This prevents the "not a function" error)
 module.exports = {
   getOverview,
   getDashboardStats,
   getRecentOrders,
+  getFinancialOverview,
+  getLogisticsData,
   addVendor,
   getEligibleUsers,
+  getProcurements,
+  getDisputes
 };

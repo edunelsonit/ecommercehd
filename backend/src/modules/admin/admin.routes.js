@@ -20,4 +20,10 @@ router.get('/recent-orders', protect, adminController.getRecentOrders);
 router.get('/users', adminController.getEligibleUsers); // Ensure this line exists
 router.post('/vendors', adminController.addVendor);
 
+router.get('/logistics', adminController.getLogisticsData); // New route for logistics data
+
+router.get('/procurements', adminController.getProcurements); // New route for procurements data
+
+router.get('/financials', adminController.getFinancialOverview); // New route for financial overview
+
 module.exports = router;
