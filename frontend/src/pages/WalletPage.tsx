@@ -4,6 +4,7 @@ import { StatusMessage } from '../components/shared/StatusMessage'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import type { AuthState } from '../store/auth'
 import { compactId, formatMoney } from '../utils/format'
+import AddFundModal from '../components/modals/AddFundModal'
 
 type WalletTransaction = {
   id: string
@@ -27,6 +28,7 @@ type WalletPageProps = {
 
 export function WalletPage({ auth }: WalletPageProps) {
   const [wallet, setWallet] = useState<Wallet | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
   const loadAction = useAsyncAction()
   const fundAction = useAsyncAction()
   const runLoad = loadAction.run
@@ -79,11 +81,31 @@ export function WalletPage({ auth }: WalletPageProps) {
       <section className="panel">
         <p className="eyebrow">Balance</p>
         <div className="metric-large">{formatMoney(wallet?.balance)}</div>
-        <button type="button" className="secondary-button" onClick={() => void loadWallet()}>
-          Refresh
-        </button>
+        <div className="flex gap-3">
+          <button type="button" className="secondary-button" onClick={() => void loadWallet()}>
+            Refresh
+          </button>
+          <button type="button" className="primary-button" onClick={() => setModalOpen(true)}>
+            Add funds
+          </button>
+        </div>
         <StatusMessage error={loadAction.error} success={loadAction.success} />
       </section>
+
+      <AddFundModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onFund={async (amount: number, reference?: string) => {
+          if (!auth) throw new Error('Not authenticated')
+          await fundAction.run(async () => {
+            await axios.post('/wallet/fund', { amount, reference: reference || `manual-${Date.now()}` }, {
+              headers: { Authorization: `Bearer ${auth.token}` }
+            })
+            await loadWallet()
+            return ''
+          })
+        }}
+      />
 
       <section className="panel">
         <div className="panel-header">

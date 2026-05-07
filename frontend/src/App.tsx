@@ -11,6 +11,8 @@ import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/Profile";
 import { Routes, Route, Navigate } from "react-router";
 import VendorDashboard from "./pages/vendor/VendorDashboard";
+import { WalletPage } from "./pages/WalletPage";
+import { loadAuth } from "./store/auth";
 
 function App() {
   return (
@@ -34,8 +36,9 @@ function App() {
         </Route>
 
         <Route path="*" element={<Navigate to="/admin" replace />} />
-
         <Route path="/vendor" element={<VendorDashboard />} />
+        <Route path="/customer" element={<HomePage />} />
+        <Route path="/wallet" element={<WalletPage auth={loadAuth()} />} />
       </Routes>
     </>
   );
