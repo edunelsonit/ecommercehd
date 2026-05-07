@@ -136,8 +136,6 @@ exports.updateProfile = async (req, res, next) => {
         
         //const userId = req.user.id;
         const userId = Number(data.id);
-        console.log(userId);
-        console.log(data)
         const updatedUser = await prisma.user.update({
             
             where: { id: Number(userId) },

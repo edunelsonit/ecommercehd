@@ -10,6 +10,7 @@ import VendorProducts from "./pages/admin/navigations/VendorProducts";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/Profile";
 import { Routes, Route, Navigate } from "react-router";
+import VendorDashboard from "./pages/vendor/VendorDashboard";
 
 function App() {
   return (
@@ -33,6 +34,8 @@ function App() {
         </Route>
 
         <Route path="*" element={<Navigate to="/admin" replace />} />
+
+        <Route path="/vendor" element={<VendorDashboard />} />
       </Routes>
     </>
   );

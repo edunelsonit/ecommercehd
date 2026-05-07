@@ -6,8 +6,11 @@ import { Smartphone, Home, Sparkles, Tv, Shirt, Utensils, HelpCircle, Store, Che
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
+import { useNavigate } from 'react-router';
 
 const Hero = () => {
+    let navigate = useNavigate();
+
   const categories = [
     { name: "Official Stores", icon: <Sparkles size={18}/> },
     { name: "Appliances", icon: <Utensils size={18}/> },
@@ -107,7 +110,7 @@ const Hero = () => {
         <aside className="w-150 hidden lg:flex flex-col gap-4">
           <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100 flex-grow group cursor-pointer">
             <div className="bg-blue-50 text-blue-600 w-10 h-10 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <HelpCircle size={24} />
+              <HelpCircle size={24} /><button onClick={()=>navigate('/vendor')}>Vendor</button>
             </div>
             <h3 className="font-bold text-gray-800 mb-1">Help Center</h3>
             <p className="text-xs text-gray-500 leading-relaxed">

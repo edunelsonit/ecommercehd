@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react'
-import { apiRequest } from '../api/client'
 import { StatusMessage } from '../components/shared/StatusMessage'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import type { AuthState } from '../store/auth'

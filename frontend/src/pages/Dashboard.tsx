@@ -7,7 +7,7 @@ import { OrdersPage, type Order } from './OrdersPage'
 import { ProcurementPage } from './ProcurementPage'
 import { SupportPage } from './SupportPage'
 import { TrackingPage } from './TrackingPage'
-import { VendorPage } from './vendor/VendorPage'
+import VendorDashboard from './vendor/VendorDashboard'
 import { WalletPage } from './WalletPage'
 import { clearAuth, loadAuth, saveAuth, type AuthState } from '../store/auth'
 
@@ -54,7 +54,7 @@ const Dashboard = () => {
       {activeView === 'wallet' && <WalletPage auth={auth} />}
       {activeView === 'procurement' && <ProcurementPage auth={auth} />}
       {activeView === 'support' && <SupportPage auth={auth} />}
-      {activeView === 'vendor' && <VendorPage auth={auth} onAuthChange={setAuth} />}
+      {activeView === 'vendor' && <VendorDashboard/>}
       {activeView === 'admin' && <AdminPage auth={auth} />}
     </Shell>
   )

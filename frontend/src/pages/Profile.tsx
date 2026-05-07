@@ -12,6 +12,9 @@ import {
   X,
   Globe,
   Edit2,
+  History,
+  Plus,
+  
 } from "lucide-react";
 import Header from "../components/Header";
 import api from "../api/axios";
@@ -44,18 +47,18 @@ const ProfilePage = () => {
     try {
       // Prepare the payload to match Prisma expectations
       const payload = {
-        id:formData.id,
-        email:formData.email,
+        id: formData.id,
+        email: formData.email,
         surname: formData.surname,
         firstName: formData.firstName,
         otherName: formData.otherName || "",
         phone: formData.phone,
         nationality: formData.nationality,
         dob: formData.dob, // Ensure this is a valid ISO string or null
-        genderId: formData.genderId ? Number(formData.genderId):1,
+        genderId: formData.genderId ? Number(formData.genderId) : 1,
         stateId: formData.stateId ? Number(formData.stateId) : 1,
         lgaId: formData.lgaId ? Number(formData.lgaId) : 1,
-        city: formData.city||"Gembu",
+        city: formData.city || "Gembu",
         address: formData.address,
         nin: formData.nin,
         tin: formData.tin,
@@ -173,12 +176,29 @@ const ProfilePage = () => {
                     Available Balance
                   </p>
                   <h3 className="text-4xl font-black mb-6">
-                    ₦{parseFloat(user?.balance || "0").toLocaleString()}
+                    ₦{(Number(user?.balance) || 0).toLocaleString()}
                   </h3>
-                  <button className="w-full bg-white/10 hover:bg-white/20 transition py-3 rounded-xl font-bold text-sm backdrop-blur-md border border-white/10">
-                    View Transaction History
-                  </button>
+
+                  {/* Button Group */}
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={() => {
+                        /* Trigger your Funding Modal here */
+                      }}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white transition py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
+                    >
+                      <Plus size={18} />
+                      Add Fund
+                    </button>
+
+                    <button className="flex-1 bg-white/10 hover:bg-white/20 transition py-3 rounded-xl font-bold text-sm backdrop-blur-md border border-white/10 flex items-center justify-center gap-2">
+                      <History size={18} className="opacity-50" />
+                      History
+                    </button>
+                  </div>
                 </div>
+
+                {/* Decorative Glow */}
                 <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-blue-500 rounded-full blur-3xl opacity-20"></div>
               </div>
             </div>
