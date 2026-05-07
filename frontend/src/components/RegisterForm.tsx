@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { Mail, Phone, Lock, Loader2, User as UserIcon } from "lucide-react";
 import api from "../api/axios";
 

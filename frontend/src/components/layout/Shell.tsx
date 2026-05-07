@@ -58,7 +58,7 @@ export function Shell({ user, activeView, onViewChange, onLogout, children }: Sh
           </div>
           {user ? (
             <div className="account-box">
-              <span>{user.first_name || user.phone}</span>
+              <span>{user.firstName || user.phone}</span>
               <small>{user.role}</small>
               <button type="button" className="ghost-button" onClick={onLogout}>
                 Logout

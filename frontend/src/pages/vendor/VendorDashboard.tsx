@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import type { ReactNode } from "react";
 import {
   Tag,
   TrendingUp,
@@ -12,23 +13,24 @@ import api from "../../api/axios";
 import AddProductModal from "./modals/AddProductModal";
 
 const VendorDashboard = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [vendorData, setVendorData] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [vendorData, setVendorData] = useState<{ businessName?: string; totalSales?: number } | null>(null);
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const fetchVendorData = async () => {
+    try {
+      const res = await api.get("/api/vendor/profile");
+      setVendorData(res.data.vendor);
+      setProducts(res.data.products || []);
+    } catch (err: any) {
+      console.error("Vendor fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchVendorData = async () => {
-      try {
-        const res = await api.get("/api/vendor/profile");
-        setVendorData(res.data.vendor);
-        setProducts(res.data.products || []);
-      } catch (err) {
-        console.error("Vendor fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchVendorData();
   }, []);
 
@@ -55,10 +57,10 @@ const VendorDashboard = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <VendorStat
-          icon={<TrendingUp className="text-emerald-500" />}
-          label="Total Sales"
-          value={`₦${vendorData?.totalSales || 0}`}
-        />
+            icon={<TrendingUp className="text-emerald-500" />}
+            label="Total Sales"
+            value={`₦${vendorData?.totalSales || 0}`}
+          />
         <VendorStat
           icon={<Box className="text-indigo-500" />}
           label="Active Products"
@@ -148,13 +150,13 @@ const VendorDashboard = () => {
       <AddProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onRefresh={vendorData} // Function that re-fetches products
+        onRefresh={fetchVendorData}
       />
     </div>
   );
 };
 
-const VendorStat = ({ icon, label, value }) => (
+const VendorStat = ({ icon, label, value }: { icon: ReactNode; label: string; value: any }) => (
   <div className="bg-white p-6 rounded-2xl border border-slate-200 flex items-center gap-4">
     <div className="p-3 rounded-xl bg-slate-50">{icon}</div>
     <div>

@@ -1,11 +1,25 @@
 import { useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { Truck, MapPin, CheckCircle, Clock, Search, Filter, Navigation } from 'lucide-react';
 import api from '../../../api/axios';
 
+type Rider = { firstName?: string; surname?: string };
+type OrderInfo = { landmarkAddress?: string };
+type Delivery = {
+  id?: number | string;
+  orderId?: number | string;
+  assignedAt?: string;
+  rider?: Rider | null;
+  order?: OrderInfo | null;
+  status?: string;
+};
+
+type Stats = { active: number; pending: number; completed: number };
+
 const AdminLogistics = () => {
-  const [deliveries, setDeliveries] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
+  const [deliveries, setDeliveries] = useState<Delivery[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [stats, setStats] = useState<Stats>({
     active: 0,
     pending: 0,
     completed: 0
@@ -15,16 +29,17 @@ const AdminLogistics = () => {
     const fetchLogistics = async () => {
       try {
         const res = await api.get('/api/admin/logistics');
-        setDeliveries(res.data.data || []);
+        const payload = res.data.data || [];
+        setDeliveries(payload);
         
         // Simple stats calculation
-        const data = res.data.data || [];
+        const data: Delivery[] = payload;
         setStats({
-          active: data.filter(d => d.status === 'in_transit' || d.status === 'picked_up').length,
-          pending: data.filter(d => d.status === 'assigned').length,
-          completed: data.filter(d => d.status === 'delivered').length,
+          active: data.filter((d: Delivery) => d.status === 'in_transit' || d.status === 'picked_up').length,
+          pending: data.filter((d: Delivery) => d.status === 'assigned').length,
+          completed: data.filter((d: Delivery) => d.status === 'delivered').length,
         });
-      } catch (err) {
+      } catch (err: any) {
         console.error("Logistics fetch error:", err);
       } finally {
         setLoading(false);
@@ -34,7 +49,7 @@ const AdminLogistics = () => {
     fetchLogistics();
   }, []);
 
-  const getStatusStyle = (status) => {
+  const getStatusStyle = (status?: string): string => {
     switch (status) {
       case 'delivered': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
       case 'in_transit': return 'bg-blue-100 text-blue-700 border-blue-200';
@@ -95,15 +110,15 @@ const AdminLogistics = () => {
             </thead>
             <tbody className="divide-y divide-slate-50">
               {loading ? (
-                <tr><td colSpan="5" className="py-10 text-center text-slate-400">Loading logistics data...</td></tr>
+                <tr><td colSpan={5} className="py-10 text-center text-slate-400">Loading logistics data...</td></tr>
               ) : deliveries.length === 0 ? (
-                <tr><td colSpan="5" className="py-10 text-center text-slate-400 italic">No active deliveries found.</td></tr>
+                <tr><td colSpan={5} className="py-10 text-center text-slate-400 italic">No active deliveries found.</td></tr>
               ) : (
-                deliveries.map((delivery) => (
+                deliveries.map((delivery: Delivery) => (
                   <tr key={delivery.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4">
                       <p className="font-bold text-slate-900 text-sm">Order #{delivery.orderId}</p>
-                      <p className="text-xs text-slate-400">{new Date(delivery.assignedAt).toLocaleTimeString()}</p>
+                      <p className="text-xs text-slate-400">{delivery.assignedAt ? new Date(delivery.assignedAt).toLocaleTimeString() : ''}</p>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
@@ -121,7 +136,7 @@ const AdminLogistics = () => {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border uppercase tracking-wide ${getStatusStyle(delivery.status)}`}>
-                        {delivery.status.replace('_', ' ')}
+                        {delivery.status ? delivery.status.replace('_', ' ') : ''}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
@@ -141,9 +156,9 @@ const AdminLogistics = () => {
 };
 
 // Sub-component for Stats
-const StatCard = ({ icon, label, value, color }) => (
+const StatCard = ({ icon, label, value, color }: { icon: ReactNode; label: string; value: number; color?: string }) => (
   <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-    <div className={`p-3 rounded-xl bg-${color}-50`}>
+    <div className={`p-3 rounded-xl ${color ? `bg-${color}-50` : 'bg-slate-50'}`}>
       {icon}
     </div>
     <div>

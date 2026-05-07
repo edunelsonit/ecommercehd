@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import api from "../api/axios";
 

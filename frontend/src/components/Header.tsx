@@ -16,7 +16,7 @@ const Header = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [authView, setAuthView] = useState("login");
+  const [authView, setAuthView] = useState<"login" | "register" | "forgot">("login");
 
   // Track authentication state locally
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
@@ -26,7 +26,7 @@ const Header = () => {
     setIsLoggedIn(!!localStorage.getItem("token"));
   }, [isAuthOpen]); // Re-check when modal closes (after login)
 
-  const openAuth = (view: string) => {
+  const openAuth = (view: "login" | "register" | "forgot") => {
     setAuthView(view);
     setIsAuthOpen(true);
     setIsMenuOpen(false);

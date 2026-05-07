@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { ReactNode } from 'react';
 import {
   User,
   ShieldCheck,
@@ -349,14 +350,16 @@ const ProfilePage = () => {
 };
 
 // 1. Move this OUTSIDE and ABOVE (or below) your main Profile function
-const ProfileInput = ({
-  label,
-  value,
-  isEditing,
-  onChange,
-  icon,
-  placeholder,
-}: any) => (
+type ProfileInputProps = {
+  label: string;
+  value?: any;
+  isEditing: boolean;
+  onChange: (v: string) => void;
+  icon?: ReactNode;
+  placeholder?: string;
+};
+
+const ProfileInput = ({ label, value, isEditing, onChange, icon, placeholder, }: ProfileInputProps) => (
   <div>
     <label className="text-[10px] text-gray-400 uppercase font-black mb-2 block tracking-wider">
       {label}

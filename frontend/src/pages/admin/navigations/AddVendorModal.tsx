@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
+import type { FormEvent } from 'react';
 import { X, Loader2, Building2 } from 'lucide-react';
 import api from '../../../api/axios';
 
-const AddVendorModal = ({ isOpen, onClose, onRefresh }) => {
-  const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState([]);
+type AddVendorModalProps = { isOpen: boolean; onClose: () => void; onRefresh?: () => void };
+
+const AddVendorModal = ({ isOpen, onClose, onRefresh }: AddVendorModalProps) => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [users, setUsers] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     userId: '',
     businessName: '',
@@ -25,7 +28,7 @@ const AddVendorModal = ({ isOpen, onClose, onRefresh }) => {
           const res = await api.get('/api/admin/users?role=customer');
           // Filter out users who already have a vendor profile if backend doesn't
           setUsers(res.data.data || []);
-        } catch (err) {
+        } catch (err: any) {
           console.error("Failed to fetch users", err);
         }
       };
@@ -33,7 +36,7 @@ const AddVendorModal = ({ isOpen, onClose, onRefresh }) => {
     }
   }, [isOpen]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formData.userId) return alert("Please select a user");
 
@@ -42,7 +45,7 @@ const AddVendorModal = ({ isOpen, onClose, onRefresh }) => {
       await api.post('/api/admin/vendors', formData);
       if (onRefresh) onRefresh(); // Trigger table refresh in parent
       handleClose(); // Reset and close
-    } catch (err) {
+    } catch (err: any) {
       alert(err.response?.data?.message || "Error creating vendor");
     } finally {
       setLoading(false);

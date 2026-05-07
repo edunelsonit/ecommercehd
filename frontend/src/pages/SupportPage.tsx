@@ -1,4 +1,4 @@
-import { apiRequest } from '../api/client'
+import axios from '../api/axios'
 import { StatusMessage } from '../components/shared/StatusMessage'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import type { AuthState } from '../store/auth'
@@ -17,11 +17,12 @@ export function SupportPage({ auth }: SupportPageProps) {
     const formElement = event.currentTarget
     const form = new FormData(formElement)
     await action.run(async () => {
-      await apiRequest('/support/disputes', auth.token, {
-        method: 'POST',
-        body: {
-          orderId: String(form.get('orderId') || ''),
-          reason: String(form.get('reason') || ''),
+      await axios.post('/support/disputes', {
+        orderId: String(form.get('orderId') || ''),
+        reason: String(form.get('reason') || ''),
+      }, {
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
         },
       })
       formElement.reset()

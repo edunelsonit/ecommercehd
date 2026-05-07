@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { apiRequest } from '../api/client'
+import axios from '../api/axios'
 import { StatusMessage } from '../components/shared/StatusMessage'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import type { AuthState } from '../store/auth'
@@ -55,8 +55,9 @@ export function MarketPage({ auth }: MarketPageProps) {
     await runLoad(async () => {
       const query = new URLSearchParams()
       if (city) query.set('city', city)
-      const data = await apiRequest<Product[]>(`/products?${query}`)
-      setProducts(data)
+      const res = await axios.get<Product[]>(`/products?${query}`)
+      // Support APIs that return either `{ data: T }` or `T` directly
+      setProducts((res.data as any)?.data ?? (res.data as any) ?? [])
       return ''
     })
   }, [city, runLoad])
@@ -93,18 +94,15 @@ export function MarketPage({ auth }: MarketPageProps) {
     if (!auth) return
 
     await checkoutAction.run(async () => {
-      await apiRequest('/orders/checkout', auth.token, {
-        method: 'POST',
-        body: {
-          totalAmount: total,
-          landmarkAddress,
-          items: cart.map((item) => ({
-            productId: item.product.id,
-            variantId: item.variant?.id,
-            quantity: item.quantity,
-            price: Number(item.variant?.priceOverride || item.product.basePrice),
-          })),
-        },
+      await axios.post('/orders/checkout', {
+        totalAmount: total,
+        landmarkAddress,
+        items: cart.map((item) => ({
+          productId: item.product.id,
+          variantId: item.variant?.id,
+          quantity: item.quantity,
+          price: Number(item.variant?.priceOverride || item.product.basePrice),
+        })),
       })
 
       setCart([])

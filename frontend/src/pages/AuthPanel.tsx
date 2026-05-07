@@ -1,16 +1,11 @@
 import { useState } from 'react'
-import { apiRequest } from '../api/client'
+import axios from '../api/axios'
 import { StatusMessage } from '../components/shared/StatusMessage'
 import { useAsyncAction } from '../hooks/useAsyncAction'
-import type { AuthState, AuthUser, Role } from '../store/auth'
+import type { AuthState, Role } from '../store/auth'
 
 type AuthPanelProps = {
   onAuthenticated: (auth: AuthState) => void
-}
-
-type LoginResponse = {
-  token: string
-  user: AuthUser
 }
 
 export function AuthPanel({ onAuthenticated }: AuthPanelProps) {
@@ -23,31 +18,26 @@ export function AuthPanel({ onAuthenticated }: AuthPanelProps) {
 
     await action.run(async () => {
       if (mode === 'register') {
-        await apiRequest('/auth/register', undefined, {
-          method: 'POST',
-          body: {
-            surname: String(form.get('surname') || ''),
-            first_name: String(form.get('first_name') || ''),
-            phone: String(form.get('phone') || ''),
-            nin: String(form.get('nin') || ''),
-            address: String(form.get('address') || ''),
-            lga_region: String(form.get('lga_region') || ''),
-            city: String(form.get('city') || ''),
-            password: String(form.get('password') || ''),
-            role: String(form.get('role') || 'customer') as Role,
-          },
+        await axios.post('/auth/register', {
+          surname: String(form.get('surname') || ''),
+          first_name: String(form.get('first_name') || ''),
+          phone: String(form.get('phone') || ''),
+          nin: String(form.get('nin') || ''),
+          address: String(form.get('address') || ''),
+          lga_region: String(form.get('lga_region') || ''),
+          city: String(form.get('city') || ''),
+          password: String(form.get('password') || ''),
+          role: String(form.get('role') || 'customer') as Role,
         })
       }
 
-      const auth = await apiRequest<LoginResponse>('/auth/login', undefined, {
-        method: 'POST',
-        body: {
-          phone: String(form.get('phone') || ''),
-          password: String(form.get('password') || ''),
-        },
+      const loginRes = await axios.post('/auth/login', {
+        phone: String(form.get('phone') || ''),
+        password: String(form.get('password') || ''),
       })
 
-      onAuthenticated(auth)
+      // Pass the auth payload (response data) to the parent
+      onAuthenticated(loginRes.data ?? loginRes)
       return mode === 'register' ? 'Account created' : 'Logged in'
     })
   }

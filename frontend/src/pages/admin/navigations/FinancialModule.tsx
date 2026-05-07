@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { 
   Wallet, 
   ArrowUpRight, 
@@ -11,10 +12,22 @@ import {
 } from 'lucide-react';
 import api from '../../../api/axios';
 
+type Transaction = {
+  id?: number | string;
+  reference?: string;
+  createdAt?: string;
+  wallet?: { user?: { firstName?: string } } | null;
+  type?: string;
+  amount?: number | string;
+  status?: string;
+};
+
+type Summary = { totalBalance: number; totalInflow: number; totalOutflow: number };
+
 const FinancialModule = () => {
-  const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [summary, setSummary] = useState({
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [summary, setSummary] = useState<Summary>({
     totalBalance: 0,
     totalInflow: 0,
     totalOutflow: 0
@@ -26,7 +39,7 @@ const FinancialModule = () => {
         const res = await api.get('/api/admin/financials');
         setTransactions(res.data.transactions || []);
         setSummary(res.data.summary || { totalBalance: 0, totalInflow: 0, totalOutflow: 0 });
-      } catch (err) {
+      } catch (err: any) {
         console.error("Financial data error:", err);
       } finally {
         setLoading(false);
@@ -101,15 +114,15 @@ const FinancialModule = () => {
             </thead>
             <tbody className="divide-y divide-slate-50">
               {loading ? (
-                <tr><td colSpan="5" className="py-20 text-center text-slate-400">Loading ledger data...</td></tr>
+                <tr><td colSpan={5} className="py-20 text-center text-slate-400">Loading ledger data...</td></tr>
               ) : transactions.length === 0 ? (
-                <tr><td colSpan="5" className="py-20 text-center text-slate-400 italic">No transactions recorded.</td></tr>
+                <tr><td colSpan={5} className="py-20 text-center text-slate-400 italic">No transactions recorded.</td></tr>
               ) : (
-                transactions.map((tx) => (
+                transactions.map((tx: Transaction) => (
                   <tr key={tx.id} className="hover:bg-slate-50/30 transition-colors">
                     <td className="px-6 py-4">
                       <p className="font-mono text-xs font-bold text-slate-700">{tx.reference || `TXN-${tx.id}`}</p>
-                      <p className="text-[10px] text-slate-400">{new Date(tx.createdAt).toLocaleString()}</p>
+                      <p className="text-[10px] text-slate-400">{tx.createdAt ? new Date(tx.createdAt).toLocaleString() : ''}</p>
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-slate-600">
                       {tx.wallet?.user?.firstName || 'System Account'}
@@ -148,11 +161,11 @@ const FinancialModule = () => {
 };
 
 // Internal Card Component
-const FinCard = ({ label, value, icon, trend, color }) => (
+const FinCard = ({ label, value, icon, trend, color }: { label: string; value: any; icon: ReactNode; trend?: string; color?: string }) => (
   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
-    <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 bg-${color}-50 rounded-full transition-transform group-hover:scale-110`} />
+    <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 ${color ? `bg-${color}-50` : ''} rounded-full transition-transform group-hover:scale-110`} />
     <div className="relative">
-      <div className={`w-12 h-12 rounded-xl bg-${color}-50 flex items-center justify-center mb-4`}>
+      <div className={`w-12 h-12 rounded-xl ${color ? `bg-${color}-50` : 'bg-slate-50'} flex items-center justify-center mb-4`}>
         {icon}
       </div>
       <p className="text-sm font-medium text-slate-500">{label}</p>

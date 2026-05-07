@@ -19,13 +19,10 @@ export function AdminPage({ auth }: AdminPageProps) {
     const formElement = event.currentTarget
     const form = new FormData(formElement)
     await assignAction.run(async () => {
-      await api.post('/logistics/assign-rider', auth.token, {
-        method: 'POST',
-        body: {
-          orderId: String(form.get('orderId') || ''),
-          riderId: String(form.get('riderId') || ''),
-          calculatedFee: Number(form.get('calculatedFee')),
-        },
+      await api.post('/logistics/assign-rider', {
+        orderId: String(form.get('orderId') || ''),
+        riderId: String(form.get('riderId') || ''),
+        calculatedFee: Number(form.get('calculatedFee')),
       })
       formElement.reset()
       return 'Rider assigned'
@@ -39,12 +36,9 @@ export function AdminPage({ auth }: AdminPageProps) {
     const formElement = event.currentTarget
     const form = new FormData(formElement)
     await verifyAction.run(async () => {
-      await api.post('/orders/verify-delivery', auth.token, {
-        method: 'POST',
-        body: {
-          orderId: String(form.get('verifyOrderId') || ''),
-          otp: String(form.get('otp') || ''),
-        },
+      await api.post('/orders/verify-delivery', {
+        orderId: String(form.get('verifyOrderId') || ''),
+        otp: String(form.get('otp') || ''),
       })
       formElement.reset()
       return 'Delivery verified'
@@ -58,27 +52,24 @@ export function AdminPage({ auth }: AdminPageProps) {
     const formElement = event.currentTarget
     const form = new FormData(formElement)
     await temporaryProductAction.run(async () => {
-      await api.post('/products/temporary', auth.token, {
-        method: 'POST',
-        body: {
-          name: String(form.get('name') || ''),
-          description: String(form.get('description') || ''),
-          image: String(form.get('image') || ''),
-          rating: {
-            stars: Number(form.get('ratingStars') || 0),
-            count: Number(form.get('ratingCount') || 0),
-          },
-          keywords: String(form.get('keywords') || '')
-            .split(',')
-            .map((keyword) => keyword.trim())
-            .filter(Boolean),
-          basePrice: Number(form.get('basePrice')),
-          unitType: String(form.get('unitType') || 'piece'),
-          stockQuantity: Number(form.get('stockQuantity') || 10),
-          size: String(form.get('size') || ''),
-          color: String(form.get('color') || ''),
-          sku: String(form.get('sku') || ''),
+      await api.post('/products/temporary', {
+        name: String(form.get('name') || ''),
+        description: String(form.get('description') || ''),
+        image: String(form.get('image') || ''),
+        rating: {
+          stars: Number(form.get('ratingStars') || 0),
+          count: Number(form.get('ratingCount') || 0),
         },
+        keywords: String(form.get('keywords') || '')
+          .split(',')
+          .map((keyword) => keyword.trim())
+          .filter(Boolean),
+        basePrice: Number(form.get('basePrice')),
+        unitType: String(form.get('unitType') || 'piece'),
+        stockQuantity: Number(form.get('stockQuantity') || 10),
+        size: String(form.get('size') || ''),
+        color: String(form.get('color') || ''),
+        sku: String(form.get('sku') || ''),
       })
       formElement.reset()
       return 'Temporary product created'

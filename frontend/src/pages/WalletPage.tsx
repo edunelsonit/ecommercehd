@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import axios from '../api/axios'
 import { StatusMessage } from '../components/shared/StatusMessage'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import type { AuthState } from '../store/auth'
@@ -34,8 +35,12 @@ export function WalletPage({ auth }: WalletPageProps) {
     if (!auth) return
 
     await runLoad(async () => {
-      const data = await apiRequest<Wallet>('/wallet/balance', auth.token)
-      setWallet(data)
+      const data = await axios.get('/wallet/balance', {
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+        },
+      })
+      setWallet(data.data)
       return ''
     })
   }, [auth, runLoad])
@@ -51,11 +56,12 @@ export function WalletPage({ auth }: WalletPageProps) {
     const formElement = event.currentTarget
     const form = new FormData(formElement)
     await fundAction.run(async () => {
-      await apiRequest('/wallet/fund', auth.token, {
-        method: 'POST',
-        body: {
-          amount: Number(form.get('amount')),
-          reference: String(form.get('reference') || `manual-${Date.now()}`),
+      await axios.post('/wallet/fund', {
+        amount: Number(form.get('amount')),
+        reference: String(form.get('reference') || `manual-${Date.now()}`),
+      }, {
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
         },
       })
       formElement.reset()

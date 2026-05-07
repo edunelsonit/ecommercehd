@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   ExternalLink, 
   CheckCircle, 
@@ -9,16 +9,25 @@ import {
 } from 'lucide-react';
 import api from '../../../api/axios';
 
+type ProcUser = { firstName?: string; surname?: string };
+type ProcurementItem = {
+  id?: number | string;
+  user?: ProcUser | null;
+  productUrl?: string;
+  finalTotal?: number | string;
+  status?: string;
+};
+
 const AdminProcurement = () => {
-  const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [requests, setRequests] = useState<ProcurementItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchProcurements = async () => {
       try {
         const res = await api.get('/api/admin/procurements');
         setRequests(res.data.data || []);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Procurement fetch error:", err);
       } finally {
         setLoading(false);
@@ -28,8 +37,8 @@ const AdminProcurement = () => {
     fetchProcurements();
   }, []);
 
-  const getStatusBadge = (status) => {
-    const styles = {
+  const getStatusBadge = (status?: string): string => {
+    const styles: Record<string, string> = {
       evaluating: "bg-amber-100 text-amber-700 border-amber-200",
       approved: "bg-blue-100 text-blue-700 border-blue-200",
       purchased: "bg-indigo-100 text-indigo-700 border-indigo-200",
@@ -37,7 +46,7 @@ const AdminProcurement = () => {
       delivered: "bg-emerald-100 text-emerald-700 border-emerald-200",
       cancelled: "bg-rose-100 text-rose-700 border-rose-200",
     };
-    return styles[status] || "bg-slate-100 text-slate-700";
+    return (status && styles[status]) || "bg-slate-100 text-slate-700";
   };
 
   return (
@@ -88,11 +97,11 @@ const AdminProcurement = () => {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
-                <tr><td colSpan="5" className="py-20 text-center text-slate-400">Fetching procurement requests...</td></tr>
+                <tr><td colSpan={5} className="py-20 text-center text-slate-400">Fetching procurement requests...</td></tr>
               ) : requests.length === 0 ? (
-                <tr><td colSpan="5" className="py-20 text-center text-slate-500 italic">No procurement requests found.</td></tr>
+                <tr><td colSpan={5} className="py-20 text-center text-slate-500 italic">No procurement requests found.</td></tr>
               ) : (
-                requests.map((item) => (
+                requests.map((item: ProcurementItem) => (
                   <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <p className="font-bold text-slate-900">{item.user?.firstName} {item.user?.surname}</p>

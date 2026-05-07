@@ -3,9 +3,11 @@ import { UserPlus, MoreVertical, User as Mail, Phone } from 'lucide-react';
 import api from '../../../api/axios';
 import AddVendorModal from './AddVendorModal'; // Adjust path if needed
 
+type AppUser = { id?: number | string; firstName?: string; surname?: string; email?: string; phone?: string; role?: string };
+
 const UserManagement = () => {
-  const [users, setUsers] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [users, setUsers] = useState<AppUser[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
  // 1. Start with loading as true
 const [loading, setLoading] = useState(true); 
@@ -15,7 +17,7 @@ const fetchUsers = async () => {
   try {
     const res = await api.get('/api/admin/users');
     setUsers(res.data.data || []);
-  } catch (err) {
+  } catch (err: any) {
     console.error("Error fetching users:", err);
   } finally {
     setLoading(false); // 3. This is async, so it's allowed!
@@ -27,15 +29,16 @@ useEffect(() => {
 }, []);
 
   // Helper for role badges
-  const getRoleBadge = (role) => {
-    const styles = {
+  const getRoleBadge = (role?: string) => {
+    const styles: Record<string, string> = {
       superadmin: "bg-rose-100 text-rose-700 border-rose-200",
       admin: "bg-amber-100 text-amber-700 border-amber-200",
       vendor: "bg-indigo-100 text-indigo-700 border-indigo-200",
       rider: "bg-emerald-100 text-emerald-700 border-emerald-200",
       customer: "bg-slate-100 text-slate-700 border-slate-200",
     };
-    return styles[role?.toLowerCase()] || styles.customer;
+    const key = role ? role.toLowerCase() : 'customer';
+    return styles[key] || styles.customer;
   };
 
   return (
@@ -70,7 +73,7 @@ useEffect(() => {
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan="4" className="px-6 py-12 text-center text-slate-400">
+                      <td colSpan={4} className="px-6 py-12 text-center text-slate-400">
                     <div className="flex justify-center items-center gap-3">
                       <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
                       Loading users...
@@ -79,7 +82,7 @@ useEffect(() => {
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="px-6 py-12 text-center text-slate-500 italic">
+                  <td colSpan={4} className="px-6 py-12 text-center text-slate-500 italic">
                     No users found in the database.
                   </td>
                 </tr>

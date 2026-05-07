@@ -41,7 +41,7 @@ const VendorProducts = () => {
       if (isMounted.current) {
         setVendors(response.data.data || []);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error fetching vendors:", err);
     } finally {
       if (isMounted.current) {

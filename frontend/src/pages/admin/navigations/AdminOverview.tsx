@@ -16,9 +16,25 @@ import api from "../../../api/axios";
 // import api from '../utils/api';
 
 
+type UserShort = { firstName?: string; surname?: string; email?: string };
+type Order = {
+  id?: number | string;
+  user?: UserShort | null;
+  totalAmount?: number | string;
+  orderStatus?: string;
+};
+
+type OverviewResult = {
+  totalRevenue?: number | string;
+  activeOrders?: number;
+  totalUsers?: number;
+  openDisputes?: number;
+  procurementPipeline?: { status: string; count: number }[];
+};
+
 const AdminOverview = () => {
-  const [overviewresult, getOverviewResult] = useState();
-  const [recentOrders, setRecentOrders] = useState([]);
+  const [overviewresult, getOverviewResult] = useState<OverviewResult | undefined>(undefined);
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
 
 
   useEffect(() => {
@@ -26,7 +42,7 @@ const AdminOverview = () => {
       try {
         const response = await api.get("/api/admin/stats");
         getOverviewResult(response.data.data);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to fetch admin stats:", err);
       }
     };
@@ -36,7 +52,7 @@ const AdminOverview = () => {
       try {
         const response = await api.get("/api/admin/recent-orders");
         setRecentOrders(response.data.data);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error fetching recent orders:", err);
       }
     };
@@ -44,7 +60,7 @@ const AdminOverview = () => {
   }, []); // Empty array means "run once on mount"
 
   // Helper to find specific counts in the procurement array
-  const getPCount = (status) => {
+  const getPCount = (status: string): number => {
     return (
       overviewresult?.procurementPipeline?.find((p) => p.status === status)
         ?.count || 0
@@ -52,7 +68,7 @@ const AdminOverview = () => {
   };
 
   // Helper to style status badges based on Prisma Enum
-  const getStatusStyles = (status) => {
+  const getStatusStyles = (status?: string) => {
     const styles = {
       pending: "bg-amber-100 text-amber-700",
       processing: "bg-blue-100 text-blue-700",
@@ -60,7 +76,7 @@ const AdminOverview = () => {
       delivered: "bg-emerald-100 text-emerald-700",
       cancelled: "bg-red-100 text-red-700",
     };
-    return styles[status] || "bg-slate-100 text-slate-700";
+    return (status ? styles[status as keyof typeof styles] : undefined) || "bg-slate-100 text-slate-700";
   };
   return (
     <div>
@@ -149,7 +165,7 @@ const AdminOverview = () => {
                             className="hover:bg-slate-50 transition-colors"
                           >
                             <td className="px-6 py-4 font-mono text-slate-600">
-                              #ORD-{order.id.toString().padStart(5, "0")}
+                              #ORD-{String(order.id ?? 0).padStart(5, "0")}
                             </td>
                             <td className="px-6 py-4 text-slate-900 font-medium">
                               {order.user?.firstName} {order.user?.surname}
@@ -182,7 +198,7 @@ const AdminOverview = () => {
                       ) : (
                         <tr>
                           <td
-                            colSpan="5"
+                            colSpan={5}
                             className="px-6 py-10 text-center text-slate-400"
                           >
                             No recent orders found.
@@ -240,29 +256,35 @@ const AdminOverview = () => {
   )
 }
 
-const StatCard = ({ title, value, trend, icon: Icon, color, bg, isAlert }) => (
-  <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-    <div className="flex items-center justify-between mb-4">
-      <div className={`${bg} ${color} p-2.5 rounded-lg`}>
-        <Icon size={22} />
+const StatCard = (props: { title: string; value: any; trend: string; icon: any; color?: string; bg?: string; isAlert?: boolean }) => {
+  const { title, value, trend, icon: Icon, color, bg } = props;
+  return (
+    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <div className={`${bg} ${color} p-2.5 rounded-lg`}>
+          <Icon size={22} />
+        </div>
+        <span
+          className={`text-xs font-bold px-2 py-1 rounded-full ${trend.startsWith("+") ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
+        >
+          {trend}
+        </span>
       </div>
-      <span
-        className={`text-xs font-bold px-2 py-1 rounded-full ${trend.startsWith("+") ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
-      >
-        {trend}
-      </span>
+      <p className="text-slate-500 text-sm font-medium">{title}</p>
+      <h4 className="text-2xl font-bold text-slate-900 mt-1">{value}</h4>
     </div>
-    <p className="text-slate-500 text-sm font-medium">{title}</p>
-    <h4 className="text-2xl font-bold text-slate-900 mt-1">{value}</h4>
-  </div>
-);
+  )
+}
 
-const StatusItem = ({ label, count, icon: Icon, color }) => (
+const StatusItem = ({ label, count, icon: Icon, color }: { label: string; count: number; icon?: any; color?: string }) => (
   <div className="flex items-center gap-4">
     <div className={`w-2 h-10 rounded-full ${color}`}></div>
-    <div className="flex-1">
-      <p className="text-sm font-bold text-slate-800">{label}</p>
-      <p className="text-xs text-slate-500">Active Requests</p>
+    <div className="flex-1 flex items-center gap-3">
+      {Icon && <Icon size={18} className="text-slate-400" />}
+      <div>
+        <p className="text-sm font-bold text-slate-800">{label}</p>
+        <p className="text-xs text-slate-500">Active Requests</p>
+      </div>
     </div>
     <span className="text-lg font-bold text-slate-900">{count}</span>
   </div>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { apiRequest } from '../api/client'
+import axios from '../api/axios'
 import { StatusMessage } from '../components/shared/StatusMessage'
 import { useAsyncAction } from '../hooks/useAsyncAction'
 import type { AuthState } from '../store/auth'
@@ -51,8 +51,12 @@ export function OrdersPage({ auth, onTrackOrder }: OrdersPageProps) {
     if (!auth) return
 
     await run(async () => {
-      const data = await apiRequest<Order[]>('/orders', auth.token)
-      setOrders(data)
+      const res = await axios.get<Order[]>('/orders', {
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+        },
+      })
+      setOrders((res.data as any)?.data ?? (res.data as any) ?? [])
       return ''
     })
   }, [auth, run])

@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
+import type { FormEvent } from 'react';
 import { X } from 'lucide-react';
 import api from '../../../api/axios';
 
-const AddProductModal = ({ isOpen, onClose, onRefresh }) => {
-  const [categories, setCategories] = useState([]);
+type Category = { id?: number | string; name?: string };
+type AddProductProps = { isOpen: boolean; onClose: () => void; onRefresh: () => void };
+
+const AddProductModal = ({ isOpen, onClose, onRefresh }: AddProductProps) => {
+  const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = useState({
     name: '',
     categoryId: '',
@@ -21,14 +25,14 @@ const AddProductModal = ({ isOpen, onClose, onRefresh }) => {
     }
   }, [isOpen]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await api.post('/api/vendor/products', formData);
       onRefresh();
       onClose();
       setFormData({ name: '', categoryId: '', basePrice: '', description: '', unitType: 'piece', stockThreshold: 5, isAvailable: true });
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error creating product:", err);
     }
   };
@@ -110,7 +114,7 @@ const AddProductModal = ({ isOpen, onClose, onRefresh }) => {
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase mb-1.5">Description</label>
                 <textarea 
-                  rows="4"
+                  rows={4}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
                   placeholder="Tell customers about your product..."
                   value={formData.description}
@@ -124,7 +128,7 @@ const AddProductModal = ({ isOpen, onClose, onRefresh }) => {
                   type="number" 
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none"
                   value={formData.stockThreshold}
-                  onChange={(e) => setFormData({...formData, stockThreshold: e.target.value})}
+                  onChange={(e) => setFormData({...formData, stockThreshold: Number(e.target.value)})}
                 />
               </div>
             </div>

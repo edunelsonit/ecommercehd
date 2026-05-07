@@ -3,12 +3,23 @@ import {
   AlertTriangle,
   Search,
   User,
-  ExternalLink
+  ExternalLink,
+  Clock
 } from 'lucide-react';
 import api from '../../../api/axios';
 
+type TicketUser = { firstName?: string; email?: string };
+type Ticket = {
+  id?: number | string;
+  createdAt?: string;
+  orderId?: number | string;
+  user?: TicketUser | null;
+  reason?: string;
+  status?: string;
+};
+
 const SupportTicketModule = () => {
-  const [disputes, setDisputes] = useState([]);
+  const [disputes, setDisputes] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,7 +27,7 @@ const SupportTicketModule = () => {
       try {
         const res = await api.get('/api/admin/disputes');
         setDisputes(res.data.data || []);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Dispute fetch error:", err);
       } finally {
         setLoading(false);
@@ -26,14 +37,14 @@ const SupportTicketModule = () => {
     fetchDisputes();
   }, []);
 
-  const getStatusBadge = (status) => {
-    const styles = {
+  const getStatusBadge = (status?: string): string => {
+    const styles: Record<string, string> = {
       open: "bg-rose-100 text-rose-700 border-rose-200",
       reviewing: "bg-amber-100 text-amber-700 border-amber-200",
       resolved: "bg-emerald-100 text-emerald-700 border-emerald-200",
       rejected: "bg-slate-100 text-slate-700 border-slate-200",
     };
-    return styles[status] || "bg-slate-100 text-slate-700";
+    return (status && styles[status]) || "bg-slate-100 text-slate-700";
   };
 
   return (
@@ -97,18 +108,18 @@ const SupportTicketModule = () => {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
-                <tr><td colSpan="5" className="py-20 text-center text-slate-400">Loading disputes...</td></tr>
+                <tr><td colSpan={5} className="py-20 text-center text-slate-400">Loading disputes...</td></tr>
               ) : disputes.length === 0 ? (
-                <tr><td colSpan="5" className="py-20 text-center text-slate-400 italic">No disputes reported.</td></tr>
-              ) : (
-                disputes.map((ticket) => (
+                <tr><td colSpan={5} className="py-20 text-center text-slate-400 italic">No disputes reported.</td></tr>
+                  ) : (
+                    disputes.map((ticket: Ticket) => (
                   <tr key={ticket.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs font-bold text-slate-900 underline decoration-rose-200">#{ticket.id}</span>
                         <Clock size={12} className="text-slate-400" />
                         <span className="text-[10px] text-slate-400 font-medium">
-                          {new Date(ticket.createdAt).toLocaleDateString()}
+                          {ticket.createdAt ? new Date(ticket.createdAt).toLocaleDateString() : ''}
                         </span>
                       </div>
                       <p className="text-[10px] text-indigo-600 font-bold flex items-center gap-1 cursor-pointer hover:underline">
