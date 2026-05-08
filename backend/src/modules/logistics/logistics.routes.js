@@ -1,23 +1,9 @@
-const jwt = require('jsonwebtoken');
+const express = require('express');
+const router = express.Router();
+const logisticsController = require('./logistics.controller');
+const { protect } = require('../../middlewares/auth.middleware');
 
-const verifyToken = (req, res, next) => {
-    const token = req.headers['authorization']?.split(' ')[1];
+// Assign a rider to an order (admin/operator)
+router.post('/assign', protect, logisticsController.assignRider);
 
-    if (!token) {
-        return res.status(403).json({ message: "No token provided" });
-    }
-
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        // Ensure the ID is a number for our Int-based queries
-        req.user = {
-            ...decoded,
-            id: parseInt(decoded.id)
-        };
-        next();
-    } catch (error) {
-        return res.status(401).json({ message: "Unauthorized access" });
-    }
-};
-
-module.exports = verifyToken;
+module.exports = router;

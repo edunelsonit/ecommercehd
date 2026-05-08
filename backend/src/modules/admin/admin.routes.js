@@ -7,23 +7,21 @@ const { protect } = require('../../middlewares/auth.middleware');
 router.use(protect);
 
 // Route for the main stats cards and pipeline
-router.get('/stats', protect, adminController.getDashboardStats);
+router.get('/stats', adminController.getDashboardStats);
 
 // Route for general overview (if needed separately)
-router.get('/overview', protect, adminController.getOverview);
-router.post('/vendors', protect, adminController.addVendor);
-
-// Route for the recent orders table
-router.get('/recent-orders', protect, adminController.getRecentOrders);
-
-// ... other routes
-router.get('/users', adminController.getEligibleUsers); // Ensure this line exists
+router.get('/overview', adminController.getOverview);
 router.post('/vendors', adminController.addVendor);
 
-router.get('/logistics', adminController.getLogisticsData); // New route for logistics data
+// Route for the recent orders table
+router.get('/recent-orders', adminController.getRecentOrders);
 
-router.get('/procurements', adminController.getProcurements); // New route for procurements data
+router.get('/users', adminController.getEligibleUsers);
 
-router.get('/financials', adminController.getFinancialOverview); // New route for financial overview
+router.get('/logistics', adminController.getLogisticsData);
+
+router.get('/procurements', adminController.getProcurements);
+
+router.get('/financials', adminController.getFinancialOverview);
 
 module.exports = router;

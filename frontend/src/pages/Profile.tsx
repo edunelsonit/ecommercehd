@@ -19,8 +19,10 @@ import {
 } from "lucide-react";
 import Header from "../components/Header";
 import api from "../api/axios";
+import { useNavigate } from "react-router";
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -184,7 +186,7 @@ const ProfilePage = () => {
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={() => {
-                        /* Trigger your Funding Modal here */
+                        navigate('/wallet')
                       }}
                       className="flex-1 bg-blue-600 hover:bg-blue-700 text-white transition py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
                     >

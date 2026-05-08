@@ -11,6 +11,11 @@ type AddFundModalProps = {
 const AddFundModal = ({ isOpen, onClose, onFund }: AddFundModalProps) => {
   const [loading, setLoading] = useState(false);
 
+  if (isOpen) {
+    // eslint-disable-next-line no-console
+    console.log('AddFundModal: rendered and open')
+  }
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = new FormData(e.currentTarget);

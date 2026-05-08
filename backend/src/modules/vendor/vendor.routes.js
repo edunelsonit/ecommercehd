@@ -1,6 +1,6 @@
-import express from 'express';
-import * as vendorCtrl from '../controllers/vendor/vendor.controller.js';
-import { protect, vendorOnly } from '../middleware/auth.middleware.js';
+const express = require('express');
+const vendorCtrl = require('./vendor.controllers');
+const { protect, vendorOnly } = require('../../middlewares/auth.middleware');
 
 const router = express.Router();
 
@@ -10,6 +10,5 @@ router.use(vendorOnly);
 
 router.get('/profile', vendorCtrl.getVendorProfile);
 router.post('/products', vendorCtrl.createProduct);
-// Add PUT and DELETE routes for products here...
 
-export default router;
+module.exports = router;

@@ -1,4 +1,4 @@
-const prisma = require('../config/db');
+const prisma = require('../../config/db');
 
 // Helper to calculate fees (Exported for utility)
 exports.calculateDeliveryFee = (distanceKm, isRainySeason) => {

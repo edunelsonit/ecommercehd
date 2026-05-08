@@ -41,4 +41,10 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+// Middleware to restrict routes to vendor role
+const vendorOnly = (req, res, next) => {
+  if (req.user && req.user.role === 'vendor') return next();
+  return res.status(403).json({ success: false, message: 'Vendor access required' });
+};
+
+module.exports = { protect, vendorOnly };

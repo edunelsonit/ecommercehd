@@ -5,6 +5,7 @@ import { useAsyncAction } from '../hooks/useAsyncAction'
 import type { AuthState } from '../store/auth'
 import { compactId, formatMoney } from '../utils/format'
 import AddFundModal from '../components/modals/AddFundModal'
+import Header from '../components/Header'
 
 type WalletTransaction = {
   id: string
@@ -29,6 +30,11 @@ type WalletPageProps = {
 export function WalletPage({ auth }: WalletPageProps) {
   const [wallet, setWallet] = useState<Wallet | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
+  const openModal = () => {
+    // Debug: ensure clicks reach this handler
+    console.log('WalletPage: openModal called')
+    setModalOpen(true)
+  }
   const loadAction = useAsyncAction()
   const fundAction = useAsyncAction()
   const runLoad = loadAction.run
@@ -85,7 +91,7 @@ export function WalletPage({ auth }: WalletPageProps) {
           <button type="button" className="secondary-button" onClick={() => void loadWallet()}>
             Refresh
           </button>
-          <button type="button" className="primary-button" onClick={() => setModalOpen(true)}>
+          <button type="button" className="primary-button" onClick={openModal}>
             Add funds
           </button>
         </div>
@@ -165,10 +171,16 @@ export function WalletPage({ auth }: WalletPageProps) {
 }
 
 function LoginRequired() {
+
   return (
+    <>
+    <Header/>
     <section className="panel">
       <p className="eyebrow">Authentication</p>
       <h2>Login required</h2>
     </section>
+    
+    </>
+    
   )
 }

@@ -1,20 +1,16 @@
-import prisma from "../../config/db.js";
+const prisma = require('../../config/db');
 
-export const getVendorProfile = async (req, res, next) => {
+const getVendorProfile = async (req, res, next) => {
   try {
-    // 1. Get the vendor profile linked to the logged-in user
     const vendor = await prisma.vendor.findUnique({
       where: { userId: req.user.id },
-      include: {
-        _count: { select: { products: true } }
-      }
+      include: { _count: { select: { products: true } } }
     });
 
     if (!vendor) {
-      return res.status(404).json({ success: false, message: "Vendor profile not found" });
+      return res.status(404).json({ success: false, message: 'Vendor profile not found' });
     }
 
-    // 2. Get all products belonging to this vendor
     const products = await prisma.product.findMany({
       where: { vendorId: vendor.id },
       include: { category: true },
@@ -27,10 +23,10 @@ export const getVendorProfile = async (req, res, next) => {
   }
 };
 
-export const createProduct = async (req, res, next) => {
+const createProduct = async (req, res, next) => {
   try {
     const vendor = await prisma.vendor.findUnique({ where: { userId: req.user.id } });
-    
+
     const product = await prisma.product.create({
       data: {
         ...req.body,
@@ -44,3 +40,5 @@ export const createProduct = async (req, res, next) => {
     next(error);
   }
 };
+
+module.exports = { getVendorProfile, createProduct };
